@@ -1,0 +1,49 @@
+---
+title: "02-alignment"
+author: "Kathleen Durkin"
+date: "2025-04-29"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+I'll be performing alignment of WGBS reads to the *C. virginica* genome using `bismark`. Sam has already generated scripts for this purpose as part of the [`ceasmallr`](https://github.com/sr320/ceasmallr/tree/main_) project, but I'll be rerunning alignment for the `FISH 546` bioinformatics class (SP 2025).
+
+Download trimmed reads
+```{r, engine='bash', eval=FALSE}
+# Run wget to retrieve FastQs and MD5 files
+# Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory
+wget \
+--directory-prefix ../data/trimmed-WGBS-reads \
+--recursive \
+--no-check-certificate \
+--continue \
+--cut-dirs 4 \
+--no-host-directories \
+--no-parent \
+--quiet \
+--no-clobber \
+--accept="*.fq.gz,checksums.md5" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/00.00-trimming-fastp/
+
+```
+
+
+Download scripts files
+```{r, engine='bash'}
+
+```
+
+
+
+

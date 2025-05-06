@@ -34,16 +34,121 @@ wget \
 --no-parent \
 --quiet \
 --no-clobber \
---accept="*.fq.gz,checksums.md5" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/00.00-trimming-fastp/
+--accept="*.fq.gz,checksums.md5,multiqc_report.html,fastq_pairs.txt" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/00.00-trimming-fastp/
+
+```
+
+We should have 64 trimmed reads (32 samples, R1 and R2 for each sample)
+```{r, engine='bash'}
+echo "How many trimmed reads files were downloaded?"
+ls ../data/trimmed-WGBS-reads/*.fq.gz | wc -l
+```
+
+Download C.virginica genome
+```{r, engine='bash'}
+wget \
+--directory-prefix ../data/ \
+--recursive \
+--no-check-certificate \
+--continue \
+--cut-dirs 3 \
+--no-host-directories \
+--no-parent \
+--quiet \
+--no-clobber \
+ https://gannet.fish.washington.edu/gitrepos/ceasmallr/data/Cvirginica_v300/
 
 ```
 
 
 Download scripts files
 ```{r, engine='bash'}
+curl -L -O https://raw.githubusercontent.com/sr320/ceasmallr/refs/heads/main/code/02.01-bismark-bowtie2-alignment-SLURM-array.sh
+
+curl -L -O https://raw.githubusercontent.com/sr320/ceasmallr/refs/heads/main/code/02.02-bismark-SLURM-job.sh
+```
+
+Modify scripts as needed.
+
+Changes I made:
+
+.sh file:
+
+- changed repo directory and output directory
+
+
+.job file:
+
+- changed the notification email and working directory from Sam's info to mine
+
+- changed final line, which provides file path to the .sh script
+
+
+Ran job script by running the below line from Klone terminal:
+```
+sbatch --array=0-$(($$(wc -l < ../data/trimmed-WGBS-reads/fastq_pairs.txt) - 1)) 02.02-bismark-SLURM-job.sh
+```
+
+Finished running after ~26 hours, check some of the outputs. I'm a little concerned because the email I recieved from Hyak notifying me of completion said `Slurm Array Summary Job_id=25714300_* (25714300) Name=bismark_job_array Failed, Mixed, ExitCode [0-2]`
+
+```{r, engine='bash'}
+cd ../output/02.01-bismark-bowtie2-alignment-SLURM-array/
+
+echo "Number of error files (should have 32):"
+ls *.err | wc -l
+
+echo "Number of .out files (should have 32):"
+ls *.out | wc -l
+
+echo "Number of bismark summary files (should have 32):"
+ls *bismark_summary.txt | wc -l
+
+find . -type f -name "*.out" -size -100c
+
+```
+There are 33 error and .out files because I mistakenly removed a +1 in the job command, so it started at the wrong index. That means the jobid_0 files are basically duds. So we actually have 32 of each, as expected.
+
+There are only 28 bismark summary files, instead of the expected 32. Excluding the dud jobid_0.out, there are 4 .out files that are very small (<100 B): ./bismark_job_25714300_12.out
+./bismark_job_25714300_13.out
+./bismark_job_25714300_9.out
+./bismark_job_25714300_10.out
+
+Each of these files just contains the following:
+
+```
+Contents of pair:
+
+
+Files  and  have already been processed. Exiting.
 
 ```
 
+So... for each of these sub jobs, the read pair is interpreted as having already been processed. Let's look at all the -bismark_summary.txt files (I think there should only be one of these for each pair of processed reads)
+
+These files seem to be named in the format:
+
+SampleID-jobSubID-bismark_summary.txt
+
+```{r, engine='bash'}
+cd ../output/02.01-bismark-bowtie2-alignment-SLURM-array/
+  
+ls *bismark_summary.txt | sort
+```
+
+Yikes. Ok it looks like, not only are many reads not run appropriately through Bismark, many of the reads were processed twice (e.g. `CF03-CM03-Zygote-1-bismark_summary.txt`, `CF03-CM03-Zygote-5-bismark_summary.txt`). That means only ~half of the reads were processed, not 28/32. 
 
 
+It also looks like 
+
+```{r, engine='bash'}
+cd ../output/02.01-bismark-bowtie2-alignment-SLURM-array/
+
+echo "How many output .bam files?"
+ls *.bam | wc -l
+
+echo "How large are the .bam files?"
+ls -lh *.bam
+```
+
+There are only 18 output bam files, and 6 of those are empty (size 0)
 

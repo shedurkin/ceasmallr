@@ -1,0 +1,88 @@
+Contents of pair:
+EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz EF07-EM03-Larvae_R2_001.fastp-trim.fq.gz
+
+Contents of sample_name: EF07-EM03-Larvae
+
+chr NC_035780.1 (65668440 bp)
+chr NC_035781.1 (61752955 bp)
+chr NC_035782.1 (77061148 bp)
+chr NC_035783.1 (59691872 bp)
+chr NC_035784.1 (98698416 bp)
+chr NC_035785.1 (51258098 bp)
+chr NC_035786.1 (57830854 bp)
+chr NC_035787.1 (75944018 bp)
+chr NC_035788.1 (104168038 bp)
+chr NC_035789.1 (32650045 bp)
+chr NC_007175.2 (17244 bp)
+
+Number of paired-end alignments with a unique best hit:	10531003
+Mapping efficiency:	32.9%
+
+Sequence pairs with no alignments under any condition:	17539388
+Sequence pairs did not map uniquely:	3945077
+Sequence pairs which were discarded because genomic sequence could not be extracted:	18
+
+Number of sequence pairs with unique best (first) alignment came from the bowtie output:
+CT/GA/CT:	2518212	((converted) top strand)
+GA/CT/CT:	2742577	(complementary to (converted) top strand)
+GA/CT/GA:	2748839	(complementary to (converted) bottom strand)
+CT/GA/GA:	2521357	((converted) bottom strand)
+
+Number of paired-end alignments with a unique best hit:	10530356
+Mapping efficiency:	32.9%
+
+Sequence pairs with no alignments under any condition:	17536831
+Sequence pairs did not map uniquely:	3948281
+Sequence pairs which were discarded because genomic sequence could not be extracted:	12
+
+Number of sequence pairs with unique best (first) alignment came from the bowtie output:
+CT/GA/CT:	2516032	((converted) top strand)
+GA/CT/CT:	2742910	(complementary to (converted) top strand)
+GA/CT/GA:	2750539	(complementary to (converted) bottom strand)
+CT/GA/GA:	2520863	((converted) bottom strand)
+
+Number of paired-end alignments with a unique best hit:	10535565
+Mapping efficiency:	32.9%
+
+Sequence pairs with no alignments under any condition:	17536702
+Sequence pairs did not map uniquely:	3943201
+Sequence pairs which were discarded because genomic sequence could not be extracted:	10
+
+Number of sequence pairs with unique best (first) alignment came from the bowtie output:
+CT/GA/CT:	2517286	((converted) top strand)
+GA/CT/CT:	2745051	(complementary to (converted) top strand)
+GA/CT/GA:	2751449	(complementary to (converted) bottom strand)
+CT/GA/GA:	2521769	((converted) bottom strand)
+
+Number of paired-end alignments with a unique best hit:	10535732
+Mapping efficiency:	32.9%
+
+Sequence pairs with no alignments under any condition:	17535582
+Sequence pairs did not map uniquely:	3944154
+Sequence pairs which were discarded because genomic sequence could not be extracted:	4
+
+Number of sequence pairs with unique best (first) alignment came from the bowtie output:
+CT/GA/CT:	2515900	((converted) top strand)
+GA/CT/CT:	2743401	(complementary to (converted) top strand)
+GA/CT/GA:	2752886	(complementary to (converted) bottom strand)
+CT/GA/GA:	2523541	((converted) bottom strand)
+
+All child process successfully finished.EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.1.gz	EF07-EM03-Larvae_R2_001.fastp-trim.fq.gz.temp.1.gz	EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.2.gz	EF07-EM03-Larvae_R2_001.fastp-trim.fq.gz.temp.2.gz	EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.3.gz	EF07-EM03-Larvae_R2_001.fastp-trim.fq.gz.temp.3.gz	EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.4.gz	EF07-EM03-Larvae_R2_001.fastp-trim.fq.gz.temp.4.gz	
+
+/gscratch/srlab/kdurkin1/kathleen-coral/project/output/02.01-bismark-bowtie2-alignment-SLURM-array/EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.1.gz_bismark_bt2_pe.bam	/gscratch/srlab/kdurkin1/kathleen-coral/project/output/02.01-bismark-bowtie2-alignment-SLURM-array/EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.2.gz_bismark_bt2_pe.bam	/gscratch/srlab/kdurkin1/kathleen-coral/project/output/02.01-bismark-bowtie2-alignment-SLURM-array/EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.3.gz_bismark_bt2_pe.bam	/gscratch/srlab/kdurkin1/kathleen-coral/project/output/02.01-bismark-bowtie2-alignment-SLURM-array/EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.4.gz_bismark_bt2_pe.bam	
+
+Number of paired-end alignments with a unique best hit:	42132656
+Mapping efficiency:	32.9%
+
+Sequence pairs with no alignments under any condition:	70148503
+Sequence pairs did not map uniquely:	15780713
+Sequence pairs which were discarded because genomic sequence could not be extracted:	44
+
+Number of sequence pairs with unique best (first) alignment came from the bowtie output:
+CT/GA/CT:	10067430	((converted) top strand)
+GA/CT/CT:	10973939	(complementary to (converted) top strand)
+GA/CT/GA:	11003713	(complementary to (converted) bottom strand)
+CT/GA/GA:	10087530	((converted) bottom strand)
+
+EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.1.gz_bismark_bt2_PE_report.txt	EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.2.gz_bismark_bt2_PE_report.txt	EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.3.gz_bismark_bt2_PE_report.txt	EF07-EM03-Larvae_R1_001.fastp-trim.fq.gz.temp.4.gz_bismark_bt2_PE_report.txt	
+

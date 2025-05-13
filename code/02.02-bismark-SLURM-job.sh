@@ -10,9 +10,9 @@
 #SBATCH --time=72:00:00
 ##turn on e-mail notification
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=samwhite@uw.edu
+#SBATCH --mail-user=kdurkin1@uw.edu
 ## Specify the working directory for this job
-#SBATCH --chdir=/gscratch/scrubbed/samwhite/gitrepos/ceasmallr/output/02.01-bismark-bowtie2-alignment-SLURM-array/
+#SBATCH --chdir=/gscratch/srlab/kdurkin1/kathleen-coral/project/output/02.01-bismark-bowtie2-alignment-SLURM-array/
 
 # Execute Roberts Lab bioinformatics container
 # Binds home directory
@@ -31,4 +31,4 @@ apptainer exec \
 --bind /mmfs1/home/ \
 --bind /gscratch \
 /gscratch/srlab/sr320/srlab-bioinformatics-container-586bf21.sif \
-/gscratch/scrubbed/samwhite/gitrepos/ceasmallr/code/02.01-bismark-bowtie2-alignment-SLURM-array.sh
+/gscratch/srlab/kdurkin1/kathleen-coral/project/code/02.01-bismark-bowtie2-alignment-SLURM-array.sh

@@ -80,3 +80,6 @@ In `output`, the outputs from a given script should be stored in a subdirectory 
 -   `03-deduplication`
 
 To maintain the document numbering in the [`ceasmallr` repo](https://github.com/sr320/ceasmallr/tree/main), I'll begin differential methylation analysis with the `06-` prefix.
+
+
+Preliminary project presentation (06-project-slidedeck): https://rpubs.com/shedurkin/1309837

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=bismark_job_array
-#SBATCH --account=coenv
-#SBATCH --partition=cpu-g2
+#SBATCH --account=srlab
+#SBATCH --partition=cpu-g2-mem2x
 #SBATCH --output=bismark_job_%A_%a.out
 #SBATCH --error=bismark_job_%A_%a.err
 #SBATCH --ntasks=1

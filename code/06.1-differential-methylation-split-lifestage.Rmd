@@ -1,0 +1,545 @@
+---
+title: "06.1-differential-methylation-split"
+author: "Kathleen Durkin"
+date: "2025-05-14"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+Performing differential methylation analysis using the `methylkit` package. This time I'll:
+
+a) change some of the parameters to match those used by Rondon et al. 2017 and Venkataraman et al. 2024
+
+b) split by life stage to look at differential methylation in the zygotes and in the larvae separately (parent conditions still the treatment factor)
+
+Inputs: 
+
+-   Methylation calls extracted from WGBS reads using `Bismark`: `[].fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz`, stored on [Gannet](https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/)
+
+
+# Download methylation calls if needed
+
+```{r, engine='bash', eval=FALSE}
+# Run wget to retrieve FastQs and MD5 files
+# Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory
+wget \
+--directory-prefix ../data/bismark-methyl-extraction \
+--recursive \
+--no-check-certificate \
+--continue \
+--cut-dirs 4 \
+--no-host-directories \
+--no-parent \
+--quiet \
+--no-clobber \
+--accept="*.deduplicated.bismark.cov.gz,checksums.md5" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/
+
+```
+
+```{r, engine='bash', eval=FALSE}
+cd ../data/bismark-methyl-extraction/
+
+echo "How many methylation calling files were downloaded?"
+ls *.deduplicated.bismark.cov.gz | wc -l
+
+echo ""
+
+echo "Check file checksums:"
+grep '.deduplicated.bismark.cov.gz' checksums.md5 | md5sum -c -
+```
+
+We should have N=32 (n=15 ControlxControl crosses, n=17 ExposedxExposed crosses)
+
+
+# methylKit
+
+Load packages
+```{r}
+# Install packages if necessary
+# if (!require("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("methylKit")
+# BiocManager::install("genomation")
+
+# Load
+library(tidyr)
+library(dplyr)
+library(methylKit)
+library(genomation)
+library(GenomicRanges)
+library(gridExtra)
+library(ggplot2)
+```
+
+Using tutorial: https://nbis-workshop-epigenomics.readthedocs.io/en/latest/content/tutorials/methylationSeq/Seq_Tutorial.html#introduction
+
+# Combo
+
+Rerun differential methylation analysis using both the lifestages, with updated settings
+
+## Create object
+
+```{r, cache=TRUE}
+
+# Define path to my samples directory
+data_dir <- "../data/bismark-methyl-extraction"
+
+# List all .bismark.cov.gz files in the samples directory
+file.list <- list.files(path = data_dir, pattern = "\\.bismark.cov.gz$", full.names = TRUE)
+# Exclude CF08-CM04-Larvae and CF08-CM05-Larvae (very low coverage and methylation)
+file.list <- file.list[!grepl("CF08-CM04-Larvae|CF08-CM05-Larvae", file.list)]
+
+# Extract just the filenames
+file.names <- basename(file.list)
+
+# Create sample IDs by stripping file extensions
+sample.ids <- sub("_R1_001.fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz", "", file.names)
+sample.ids <- sub("_R1_001.fastp-trim.REPAIRED_bismark_bt2_pe.deduplicated.bismark.cov.gz", ".REP", sample.ids)
+
+
+# Assign treatment based on first letter of filename
+# E = parents exposed to OA treatment
+# C = parents held in control
+treatment <- ifelse(startsWith(file.names, "E"), 1,
+                    ifelse(startsWith(file.names, "C"), 0, NA))
+
+# Read in methylation data
+myobj <- methRead(as.list(file.list),
+  sample.id = as.list(sample.ids),
+  pipeline = "bismarkCoverage",
+  assembly = "mm10",
+  treatment = treatment,
+  mincov = 10
+)
+
+# Inspect
+str(myobj)
+head(myobj[[1]])
+```
+
+
+## Descriptive statistics
+
+```{r}
+# Get a histogram of the methylation percentage per sample
+for (i in 1:length(myobj)){
+  getMethylationStats(myobj[[i]], plot=TRUE, both.strands=FALSE)
+}
+```
+
+CF08-CM04-Larvae.REP and CF08-CM05-Larvae have almost no methylated sites and poor coverage. I think I'll go back and exclude them from the analysis for now.
+
+```{r}
+for (i in 1:length(myobj)){
+  getCoverageStats(myobj[[i]], plot=TRUE, both.strands=FALSE)
+  # # Get percentile data by setting plot=FALSE
+  # getCoverageStats(myobj[[i]], plot=FALSE, both.strands=FALSE)
+}
+```
+
+
+## Filter
+
+We want to filter out bases with low coverage (<10 reads) because they will reduce reliability in downstream analyses. We also want to discard any bases with exceptionally high coverage (in the 99.9th percentile), as this is an indication of PCR amplification bias.
+```{r}
+myobj.filt <- filterByCoverage(myobj,
+                      lo.count=10,
+                      lo.perc=NULL,
+                      hi.count=NULL,
+                      hi.perc=99.9)
+```
+
+## Normalization
+
+Next, we normalize the coverage values among samples.
+
+```{r}
+myobj.filt.norm <- normalizeCoverage(myobj.filt, method = "median")
+```
+
+## Merge
+
+Data doesn't appear to be two-stranded, so will use `destrand=FALSE`
+
+```{r, cache=TRUE}
+meth <- methylKit::unite(myobj.filt.norm, destrand=FALSE)
+nrow(meth)
+```
+
+We retain 114 CpG site that have coverage in all samples
+
+## Filter 2
+
+This step was reccommended in the tutorial I was following, but doesn't seem to have been implemented in Rondon et al. 2017 or Venkataraman et al. 2024, so I'll skip for now
+
+```{r}
+# # get percent methylation matrix
+# pm=percMethylation(meth)
+# 
+# # calculate standard deviation of CpGs
+# sds=matrixStats::rowSds(pm)
+# 
+# # Visualize the distribution of the per-CpG standard deviation
+# # to determine a suitable cutoff
+# hist(sds, breaks = 100)
+# 
+# # keep only CpG with standard deviations larger than 2%
+# meth <- meth[sds > 2]
+# 
+# # This leaves us with this number of CpG sites
+# nrow(meth)
+```
+
+Could also remove known C/T SNPs if we want (will exclude this step for now)
+
+```{r}
+# # give the locations of 2 example SNPs
+# mut <- GRanges(seqnames=c("chr1","chr18"),
+#          ranges=IRanges(start=c(3020690, 9853326),
+#                         end=c(3020690,9853326)))
+# 
+# # select CpGs that do not overlap with mutations
+# meth <- meth[!as(meth,"GRanges") %over% mut, ]
+```
+
+## Data structure/Outlier detection
+
+```{r}
+getCorrelation(meth,plot=FALSE)
+```
+
+```{r}
+clusterSamples(meth, dist="correlation", method="ward", plot=TRUE)
+```
+
+```{r}
+PCASamples(meth)
+```
+
+## Differential methylation
+
+### CpG sites
+
+```{r}
+# Test for differential methylation
+# Apply Benjamini-Hochberg adjustment for multiple testing (default)
+myDiff <- calculateDiffMeth(meth, adjust="BH")
+# Not sure what minimum difference is appropriate here. Rondon et al. 2017 used 25%, Venkataraman et al. 2024 used 50%
+myDiff_sig_diff25 <- getMethylDiff(myDiff, difference = 25, qvalue = 0.01)
+myDiff_sig_diff50 <- getMethylDiff(myDiff, difference = 50, qvalue = 0.01)
+
+
+nrow(myDiff_sig_diff25)
+nrow(myDiff_sig_diff50)
+```
+
+There are 0 CpG sites that are differentially methylated based on parental exposure. 
+
+Last time I found 3, but I wasn't filtering by methylation difference, and I was basing significance off of the raw pvalue (`pvalue`), instead of the FDR-adjusted pvalues (`qvalue`)
+
+
+
+Now run differential methylation analysis separately on the zygote and larvae groups
+
+# Zygote 
+
+## Create object
+
+```{r, cache=TRUE}
+
+# Define path to my samples directory
+data_dir <- "../data/bismark-methyl-extraction"
+
+# List all .bismark.cov.gz files in the samples directory
+## Only list Zygote files
+file.list_zygote <- list.files(path = data_dir, pattern = ".*Zygote.*\\.bismark.cov.gz$", full.names = TRUE)
+
+# Extract just the filenames
+file.names_zygote <- basename(file.list_zygote)
+
+# Create sample IDs by stripping file extensions
+sample.ids_zygote <- sub("_R1_001.fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz", "", file.names_zygote)
+sample.ids_zygote <- sub("_R1_001.fastp-trim.REPAIRED_bismark_bt2_pe.deduplicated.bismark.cov.gz", ".REP", sample.ids_zygote)
+
+
+# Assign treatment based on first letter of filename
+# E = parents exposed to OA treatment
+# C = parents held in control
+treatment_zygote <- ifelse(startsWith(file.names_zygote, "E"), 1,
+                      ifelse(startsWith(file.names_zygote, "C"), 0, NA))
+
+# Read in methylation data
+myobj_zygote <- methRead(as.list(file.list_zygote),
+  sample.id = as.list(sample.ids_zygote),
+  pipeline = "bismarkCoverage",
+  assembly = "mm10",
+  treatment = treatment_zygote,
+  mincov = 10
+)
+
+# Inspect
+str(myobj_zygote)
+head(myobj_zygote[[1]])
+```
+
+## Filter
+
+We want to filter out bases with low coverage (<10 reads) because they will reduce reliability in downstream analyses. We also want to discard any bases with exceptionally high coverage (in the 99.9th percentile), as this is an indication of PCR amplification bias.
+```{r}
+myobj.filt_zygote <- filterByCoverage(myobj_zygote,
+                      lo.count=10,
+                      lo.perc=NULL,
+                      hi.count=NULL,
+                      hi.perc=99.9)
+```
+
+## Normalization
+
+Next, we normalize the coverage values among samples.
+
+```{r}
+myobj.filt.norm_zygote <- normalizeCoverage(myobj.filt_zygote, method = "median")
+```
+
+## Merge
+
+Data doesn't appear to be two-stranded, so will use `destrand=FALSE`
+
+```{r, cache=TRUE}
+meth_zygote <- methylKit::unite(myobj.filt.norm_zygote, destrand=FALSE)
+nrow(meth_zygote)
+```
+
+We retain 398 CpG site that have coverage in all zygote samples
+
+## Filter 2
+
+This step was reccommended in the tutorial I was following, but doesn't seem to have been implemented in Rondon et al. 2017 or Venkataraman et al. 2024, so I'll skip for now
+
+```{r}
+# # get percent methylation matrix
+# pm_zygote=percMethylation(meth_zygote)
+# 
+# # calculate standard deviation of CpGs
+# sds_zygote=matrixStats::rowSds(pm_zygote)
+# 
+# # Visualize the distribution of the per-CpG standard deviation
+# # to determine a suitable cutoff
+# hist(sds_zygote, breaks = 100)
+# 
+# # keep only CpG with standard deviations larger than 2%
+# meth_zygote <- meth_zygote[sds_zygote > 2]
+# 
+# # This leaves us with this number of CpG sites
+# nrow(meth_zygote)
+```
+
+## Data structure/Outlier detection
+
+```{r}
+getCorrelation(meth_zygote,plot=FALSE)
+```
+
+```{r}
+clusterSamples(meth_zygote, dist="correlation", method="ward", plot=TRUE)
+```
+
+```{r}
+PCASamples(meth_zygote)
+```
+
+## Differential methylation
+
+### CpG sites
+
+```{r}
+# Test for differential methylation
+# Apply Benjamini-Hochberg adjustment for multiple testing (default)
+myDiff_zygote <- calculateDiffMeth(meth_zygote, adjust="BH")
+# Not sure what minimum difference is appropriate here. Rondon et al. 2017 used 25%, Venkataraman et al. 2024 used 50%
+myDiff_zygote_sig_diff25 <- getMethylDiff(myDiff_zygote, difference = 25, qvalue = 0.01)
+myDiff_zygote_sig_diff50 <- getMethylDiff(myDiff_zygote, difference = 50, qvalue = 0.01)
+
+
+nrow(myDiff_zygote_sig_diff25)
+nrow(myDiff_zygote_sig_diff50)
+```
+
+There are 0 CpG sites that are differentially methylated based on parental exposure in zygotes
+
+# Larvae 
+
+## Create object
+
+
+```{r, cache=TRUE}
+
+# Define path to my samples directory
+data_dir <- "../data/bismark-methyl-extraction"
+
+# List all .bismark.cov.gz files in the samples directory
+## Only list larvae files
+file.list_larvae <- list.files(path = data_dir, pattern = ".*Larvae.*\\.bismark.cov.gz$", full.names = TRUE)
+# Exclude CF08-CM04-Larvae and CF08-CM05-Larvae (very low coverage and methylation)
+file.list_larvae <- file.list_larvae[!grepl("CF08-CM04-Larvae|CF08-CM05-Larvae", file.list_larvae)]
+
+# Extract just the filenames
+file.names_larvae <- basename(file.list_larvae)
+
+# Create sample IDs by stripping file extensions
+sample.ids_larvae <- sub("_R1_001.fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz", "", file.names_larvae)
+sample.ids_larvae <- sub("_R1_001.fastp-trim.REPAIRED_bismark_bt2_pe.deduplicated.bismark.cov.gz", ".REP", sample.ids_larvae)
+
+
+# Assign treatment based on first letter of filename
+# E = parents exposed to OA treatment
+# C = parents held in control
+treatment_larvae <- ifelse(startsWith(file.names_larvae, "E"), 1,
+                      ifelse(startsWith(file.names_larvae, "C"), 0, NA))
+
+# Read in methylation data
+myobj_larvae <- methRead(as.list(file.list_larvae),
+  sample.id = as.list(sample.ids_larvae),
+  pipeline = "bismarkCoverage",
+  assembly = "mm10",
+  treatment = treatment_larvae,
+  mincov = 10
+)
+
+# Inspect
+str(myobj_larvae)
+head(myobj_larvae[[1]])
+```
+
+## Filter
+
+We want to filter out bases with low coverage (<10 reads) because they will reduce reliability in downstream analyses. We also want to discard any bases with exceptionally high coverage (in the 99.9th percentile), as this is an indication of PCR amplification bias.
+```{r}
+myobj.filt_larvae <- filterByCoverage(myobj_larvae,
+                      lo.count=10,
+                      lo.perc=NULL,
+                      hi.count=NULL,
+                      hi.perc=99.9)
+```
+
+## Normalization
+
+Next, we normalize the coverage values among samples.
+
+```{r}
+myobj.filt.norm_larvae <- normalizeCoverage(myobj.filt_larvae, method = "median")
+```
+
+## Merge
+
+Data doesn't appear to be two-stranded, so will use `destrand=FALSE`
+
+```{r, cache=TRUE}
+meth_larvae <- methylKit::unite(myobj.filt.norm_larvae, destrand=FALSE)
+nrow(meth_larvae)
+```
+
+We retain 12128 CpG site that have coverage in all larvae samples
+
+## Filter 2
+
+This step was reccommended in the tutorial I was following, but doesn't seem to have been implemented in Rondon et al. 2017 or Venkataraman et al. 2024, so I'll skip for now
+
+```{r}
+# # get percent methylation matrix
+# pm_larvae=percMethylation(meth_larvae)
+# 
+# # calculate standard deviation of CpGs
+# sds_larvae=matrixStats::rowSds(pm_larvae)
+# 
+# # Visualize the distribution of the per-CpG standard deviation
+# # to determine a suitable cutoff
+# hist(sds_larvae, breaks = 100)
+# 
+# # keep only CpG with standard deviations larger than 2%
+# meth_larvae <- meth_larvae[sds_larvae > 2]
+# 
+# # This leaves us with this number of CpG sites
+# nrow(meth_larvae)
+```
+
+## Data structure/Outlier detection
+
+```{r}
+getCorrelation(meth_larvae,plot=FALSE)
+```
+
+```{r}
+clusterSamples(meth_larvae, dist="correlation", method="ward", plot=TRUE)
+```
+
+```{r}
+PCASamples(meth_larvae)
+```
+
+## Differential methylation
+
+### CpG sites
+
+```{r}
+# Test for differential methylation
+# Apply Benjamini-Hochberg adjustment for multiple testing (default)
+myDiff_larvae <- calculateDiffMeth(meth_larvae, adjust="BH")
+# Not sure what minimum difference is appropriate here. Rondon et al. 2017 used 25%, Venkataraman et al. 2024 used 50%
+myDiff_larvae_sig_diff25 <- getMethylDiff(myDiff_larvae, difference = 25, qvalue = 0.01)
+myDiff_larvae_sig_diff50 <- getMethylDiff(myDiff_larvae, difference = 50, qvalue = 0.01)
+
+
+nrow(myDiff_larvae_sig_diff25)
+nrow(myDiff_larvae_sig_diff50)
+```
+
+Based on a minimum difference of 25%, there are 100 CpG sites that are differentially methylated based on parental exposure in larvae (1 DML based on 50% minimum difference). Frankly, this seems super weird. I'd expect any "inherited methylation" signatures present in the larval stage (3 days post-fertilization) to also be retained in the preceding zygote stage (9 hours post-fertilization)
+
+```{r}
+# volcano plot to get an overview of differential methylation
+myDiff_larvae$significant <- abs(myDiff_larvae$meth.diff) > 25 & myDiff_larvae$qvalue < 0.01
+
+# Plot
+ggplot(myDiff_larvae, aes(x = -log10(qvalue), y = meth.diff, color = significant)) +
+  geom_point(size = 1) +
+  scale_color_manual(values = c("gray" = "gray", "TRUE" = "red", "FALSE" = "gray")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme_minimal() +
+  labs(
+    x = expression(-log[10](qvalue)),
+    y = "Methylation Difference",
+    color = "Significant (|meth.diff| > 25, q < 0.01)",
+    title = "CpGs Differentially Methylated by Parental Treatment"
+  )
+```
+
+
+# Notes
+
+Very weird results:
+
+- No DMLs based on parent exposure when looking at all data together
+
+- No DMLs based on parent exposure when looking only at zygote samples
+
+- 100 DMLs based on parent exposure when looking only at larval samples
+
+
+However, looking through the data filtering steps an obvious discrepancy pops out. The zygote samples had *far* fewer CpG sites retained post-filtering than the larval samples (398 in zygote vs. 12,128 in larval). This also then affected the number of sites retained in the un-split run (114), because we only kept CpG sites with sufficient coverage in *all* included samples.
+
+It seems likely, then that the abundance of DMLs in larvae and dearth of DMLs in zygotes is due to low data quality or poor statistical resolution. I should look into the data quantity/quality for these samples and see if any major differences pop out.
+
+I also need to check whether any of the larval DMLs were also identified in the parents (in Venkataraman et al. 2024)

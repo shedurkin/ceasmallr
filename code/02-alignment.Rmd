@@ -45,7 +45,7 @@ ls ../data/trimmed-WGBS-reads/*.fq.gz | wc -l
 ```
 
 Download C.virginica genome
-```{r, engine='bash'}
+```{r, engine='bash', eval=FALSE}
 wget \
 --directory-prefix ../data/ \
 --recursive \
@@ -62,7 +62,7 @@ wget \
 
 
 Download scripts files
-```{r, engine='bash'}
+```{r, engine='bash', eval=FALSE}
 curl -L -O https://raw.githubusercontent.com/sr320/ceasmallr/refs/heads/main/code/02.01-bismark-bowtie2-alignment-SLURM-array.sh
 
 curl -L -O https://raw.githubusercontent.com/sr320/ceasmallr/refs/heads/main/code/02.02-bismark-SLURM-job.sh
@@ -86,7 +86,7 @@ Changes I made:
 
 Ran job script by running the below line from Klone terminal:
 ```
-sbatch --array=0-$(($$(wc -l < ../data/trimmed-WGBS-reads/fastq_pairs.txt) - 1)) 02.02-bismark-SLURM-job.sh
+sbatch --array=0-$(($(wc -l < ../data/trimmed-WGBS-reads/fastq_pairs.txt) - 1)) 02.02-bismark-SLURM-job.sh
 ```
 
 Finished running after ~26 hours, check some of the outputs. I'm a little concerned because the email I recieved from Hyak notifying me of completion said `Slurm Array Summary Job_id=25714300_* (25714300) Name=bismark_job_array Failed, Mixed, ExitCode [0-2]`
@@ -152,3 +152,6 @@ ls -lh *.bam
 
 There are only 18 output bam files, and 6 of those are empty (size 0)
 
+
+
+Since I'm having trouble with Sam's script, I'm going to try Steven's simpler script. It also has 

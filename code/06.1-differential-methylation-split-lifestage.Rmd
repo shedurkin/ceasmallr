@@ -526,6 +526,26 @@ ggplot(myDiff_larvae, aes(x = -log10(qvalue), y = meth.diff, color = significant
   )
 ```
 
+Save Larvae DMLs. Note that methylKit output is 1-based start. To save as a BED file, with 0-based start, I need to adjust the start postions before saving
+```{r}
+
+myDiff_larvae_sig_diff25$chromStart <- myDiff_larvae_sig_diff25$start - 1  # BED is 0-based start
+myDiff_larvae_sig_diff25$chromEnd <- myDiff_larvae_sig_diff25$end          # End is exclusive in BED, but same here because it's a point
+
+# Arrange in BED column order
+myDiff_larvae_sig_diff25_BED <- getData(myDiff_larvae_sig_diff25)[, c("chr", "chromStart", "chromEnd", "strand", "meth.diff")]
+
+# Save as BED file
+write.table(
+  myDiff_larvae_sig_diff25_BED,
+  file = "../output/06.1-differential-methylation-split-lifestage/larvae_diff25_DML.bed",
+  quote = FALSE,
+  sep = "\t",
+  row.names = FALSE,
+  col.names = FALSE
+)
+```
+
 
 # Notes
 

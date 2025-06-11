@@ -124,6 +124,46 @@ echo "Shared with male parent:"
 
 2 Larvae DMLs present in female parents (0.19%) (though both the DMLs shared with female parents have nearly insignificant methylation differences)
 
+## Plot
+
+```{r}
+samples <- c("combo_diff25_DML", "zygote_diff25_DML", "larvae_diff25_DML")
+
+# Build df
+dml_counts_df <- map_dfr(samples, function(samp) {
+  
+  # Read in files
+  all_feats   <- read_tsv(paste0("../output/06.2-diff-methyl-split-lifestage-low-cov/", samp, ".bed"), col_names = FALSE, show_col_types = FALSE)
+  maternal_feats <- read_tsv(paste0("../output/07.2-DML-adult-comparison-low-cov/", samp, "_female-parent.bed"), col_names = FALSE, show_col_types = FALSE)
+  paternal_feats   <- read_tsv(paste0("../output/07.2-DML-adult-comparison-low-cov/", samp, "_male-parent.bed"), col_names = FALSE, show_col_types = FALSE)
+  
+  # Compute counts
+  n_all     <- nrow(all_feats)
+  n_maternal <- nrow(maternal_feats)
+  n_paternal   <- nrow(paternal_feats)
+  
+  # Return long-format counts for plotting
+  tibble(
+    Sample = samp,
+    Category = c("All DMLs", "Maternal", "Paternal"),
+    Count = c(n_all, n_maternal, n_paternal)
+  )
+})
+
+```
+
+```{r}
+ggplot(dml_counts_df, aes(x = Sample, y = Count, fill = Category)) +
+  geom_col(position = "dodge") +
+  labs(title = "DMLs per Group and Parent Origin",
+       y = "Number of DMLs",
+       x = "Group") +
+  scale_fill_manual(values = c("All DMLs" = "#636363", "Maternal" = "#ff7f0e", "Paternal" = "#1f77b4")) +
+  theme_minimal()
+
+```
+
+
 # Genomic features
 
 We can also compare to different genomic features

@@ -34,7 +34,10 @@ From partner studies, elevated pCO2 resulted in:
 
 Official Github repo for the `ceasmaller` project: https://github.com/sr320/ceasmallr/tree/main
 
-Official large-file storage (e.g., raw and trimmed reads, bismark output): https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/
+Official large-file storage for `ceasmallr` (e.g., raw and trimmed reads, bismark output): https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/
+
+Official large-file storage for `ceabigr`:
+https://gannet.fish.washington.edu/seashell/bu-mox/scrubbed/120321-cvBS/
 
 Steps already performed in the official repo:
 
@@ -82,4 +85,6 @@ In `output`, the outputs from a given script should be stored in a subdirectory 
 To maintain the document numbering in the [`ceasmallr` repo](https://github.com/sr320/ceasmallr/tree/main), I'll begin differential methylation analysis with the `06-` prefix.
 
 
-Preliminary project presentation (06-project-slidedeck): https://rpubs.com/shedurkin/1309837
+Preliminary project presentation (presentations/06-project-slidedeck): https://rpubs.com/shedurkin/1309837
+
+Final compendium (presentations/10-project-compendium): https://rpubs.com/shedurkin/1321496

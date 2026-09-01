@@ -1,0 +1,333 @@
+---
+title: "10-diff-methyl-DSS"
+author: "Kathleen Durkin"
+date: "`r Sys.Date()`"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+Differential methylation analysis using the `DSS` package (Dispersion Shrinkage for Sequencing data)
+
+Why `DSS` here:
+
+- The experimental design has **two crossed factors** (parental treatment: Control/Exposed; life stage: Zygote/Larvae). `DSS` allows treatment, stage, and their interaction can be modelled directly.
+- `DSS`/`bsseq` retains the **union** of CpG positions and tolerate missing / low coverage,rather than requiring coverage in *every* sample the way `methylKit::unite()` does.
+
+Caveats to keep in mind:
+
+- `DMLtest.multiFactor()` does **not** spatially smooth (smoothing is only in the two-group `DMLtest()`). Below we use the multi-factor fit for the design-level tests, and a separate smoothed two-group `DMLtest()` within each stage to mirror the `06.2` split.
+- `DSS` aggregates DMRs from per-site statistics and gives no region-level FDR
+- Only fixed-effect covariates are supported (no family/cross random effects)
+
+Inputs: Bismark coverage files `[].deduplicated.bismark.cov.gz`, the same ones used in `06.x` (stored under `../data/bismark-methyl-extraction/`).
+
+# Setup
+
+I ended up needing to run this code from using a .sh script from the terminal for two reasons. First, Klone doesn't seem to have the DSS package available, and I don't seem to have the requisite permissions to install it, so I need to run all of this code within a conda environment. Second, some of these runs are so comuptationally intensive that I need >200G of memory. I therefore needed to request a node with a really high amount of memory on which to run this code. 
+
+Below is a copy of the simple `.sh` script I'm using for the run. From a Klone login node, I can just use the `sbatch` command to run this `.sh` script, which will request a suffiently powered node, open a conda environment, and run all R code in this `.Rmd` file. 
+```{r, engine='bash', eval=FALSE}
+#!/bin/bash
+#SBATCH --account=srlab
+#SBATCH --partition=cpu-g2-mem2x
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=350G
+#SBATCH --time=1-00:00:00
+#SBATCH --output=dss_%j.out
+#SBATCH --error=dss_%j.err
+#SBATCH --chdir=/gscratch/srlab/kdurkin1/kathleen-coral/project/code
+
+apptainer exec --bind /gscratch:/gscratch \
+ /gscratch/srlab/kdurkin1/srlab-R4.4-bioinformatics-container-703094b.sif \
+  bash -c 'source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh && conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss && Rscript -e "rmarkdown::render(\"10.Rmd\")"'
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+# Install if needed:
+# if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install(c("DSS", "bsseq"))
+
+library(DSS)
+library(bsseq)
+library(readr)
+library(dplyr)
+library(stringr)
+library(tibble)
+library(ggplot2)
+```
+
+# Read Bismark coverage into a BSseq object
+
+Bismark `.cov` columns (no header): `chr  start  end  meth%  count_methylated  count_unmethylated`. For `DSS` we need, per sample, a df with columns `chr`, `pos`, `N` (total coverage), and `X` (methylated count). 
+
+(Positions are 1-based in both Bismark `.cov` and `bsseq`, so no offset is needed)
+
+```{r sample-metadata}
+file.list  <- list.files("../data/bismark-methyl-extraction", pattern = "\\.bismark\\.cov\\.gz$", full.names = TRUE)
+
+# As in 06.2, drop the low-yield libraries (<100M Cs)
+# BUT, could keep all samples and let DSS handle the coverage differences -- come back to later.
+drop <- c("CF01-CM01-Zygote", "CF08-CM04-Larvae", "CF08-CM05-Larvae", "EF04-EM04-Zygote", "EF05-EM05-Zygote")
+
+file.list <- file.list[!str_detect(basename(file.list), str_c(drop, collapse = "|"))]
+
+# format sample IDs
+sample.ids <- basename(file.list) |>
+  str_replace("_R1_001\\.fastp-trim_bismark_bt2_pe\\.deduplicated\\.bismark\\.cov\\.gz$", "") |>
+  str_replace("_R1_001\\.fastp-trim\\.REPAIRED_bismark_bt2_pe\\.deduplicated\\.bismark\\.cov\\.gz$", ".REP")
+
+# Grab treatment and lifestage info from Sample IDs
+#   first letter of the cross code = parental treatment (C = control, E = exposed)
+#   stage encoded in the ID string (Zygote / Larvae)
+meta <- tibble(
+  sample    = sample.ids,
+  file      = file.list,
+  treatment = case_when(str_starts(sample.ids, "E") ~ "Exposed",
+                        str_starts(sample.ids, "C") ~ "Control",
+                        TRUE ~ NA_character_),
+  stage     = case_when(str_detect(sample.ids, "Zygote") ~ "Zygote",
+                        str_detect(sample.ids, "Larvae") ~ "Larvae",
+                        TRUE ~ NA_character_)
+) |>
+  # reference levels: Control (so the coefficient = effect of exposure) and Zygote (earlier stage)
+  mutate(treatment = factor(treatment, levels = c("Control", "Exposed")),
+         stage     = factor(stage,     levels = c("Zygote",  "Larvae")))
+
+knitr::kable(count(meta, treatment, stage))
+```
+
+```{r read-cov}
+colData <- DataFrame(treatment = meta$treatment,
+                     stage     = meta$stage,
+                     row.names = meta$sample)
+
+BSobj <- read.bismark(files          = meta$file,
+                      colData        = colData,
+                      rmZeroCov      = TRUE,          # drops positions covered in 0 samples
+                      strandCollapse = FALSE,         # .cov isn't a cytosine report; leave off
+                      BPPARAM        = MulticoreParam(workers = 12, progressbar = TRUE),
+                      verbose        = TRUE)
+BSobj    # positions are the UNION across samples; missing positions get N = 0
+```
+
+```{r coverage-filter}
+# DSS tolerates missingness, but a light filter helps reduce noise
+# For now, require non-zero coverage in at least half the samples of each treatment x stage cell.
+# (MAY WANT TO ADJUST LATER)
+cov_mat <- getCoverage(BSobj, type = "Cov")           # loci x samples
+cells   <- interaction(meta$treatment, meta$stage, drop = TRUE)
+
+keep <- Reduce(`&`, lapply(levels(cells), function(cl) {
+  idx <- which(cells == cl)
+  rowSums(cov_mat[, idx, drop = FALSE] > 0) >= ceiling(length(idx) / 2)
+}))
+
+BSobj <- BSobj[keep, ]
+cat("Loci retained after coverage filter:", nrow(BSobj), "\n")
+```
+
+# Multi-factor model (design-level tests)
+
+Fit an interaction model for tests of *stage-dependence* (does effect of parental exposure differ between the life stages)
+```{r multifactor-fit}
+design <- data.frame(treatment = meta$treatment, stage = meta$stage)
+
+# Interaction model: does the parental-treatment effect differ by stage?
+fit_int <- DMLfit.multiFactor(BSobj, design = design,
+                              formula = ~ treatment + stage + treatment:stage)
+
+# Inspect coefficient names so we test the right columns
+colnames(fit_int$X)
+# Expected: "(Intercept)" "treatmentExposed" "stageLarvae" "treatmentExposed:stageLarvae"
+```
+
+## Parental treatment effect
+
+Fit an additive model (no interaction) to test for signal of parental treatment effect while *controlling for stage*.
+
+Note that, for a multi-factor analysis, DSS doesn't seem to rely on a threshold of % methylation difference? Just an FDR pval.
+```{r treatment-effect}
+fit_add  <- DMLfit.multiFactor(BSobj, design = design, formula = ~ treatment + stage)
+
+test_trt <- DMLtest.multiFactor(fit_add, coef = "treatmentExposed")
+head(test_trt[order(test_trt$pvals), ])
+
+# DMLs = FDR threshold (multiFactor gives per-site fdrs, not a methylKit-style % difference)
+dml_trt <- test_trt[which(test_trt$fdrs < 0.05), ]
+cat("Treatment DMLs (FDR < 0.05):", nrow(dml_trt), "\n")
+
+# Regions
+dmr_trt <- callDMR(test_trt, p.threshold = 0.01, minlen = 50, minCG = 3, dis.merge = 100)
+cat("Treatment DMRs:", nrow(dmr_trt), "\n")
+```
+
+## Stage-dependence of the treatment effect
+
+A *null* interaction at treatment-associated loci = inherited signal preserved across stages (H1.2 supported). A *significant* interaction = the effect differs between zygote and larva, i.e. evidence of developmental reprogramming.
+
+```{r interaction-test}
+test_intx <- DMLtest.multiFactor(fit_int, coef = "treatmentExposed:stageLarvae")
+head(test_intx[order(test_intx$pvals), ])
+
+dml_intx <- test_intx[which(test_intx$fdrs < 0.05), ]
+cat("Loci with stage-dependent treatment effect (FDR < 0.05):", nrow(dml_intx), "\n")
+```
+
+# Save outputs
+
+```{r save-outputs}
+save_bed <- function(df, path, score_col) {
+  if (!all(c("chr","start","end") %in% names(df))) {
+    stop("save_bed: df lacks chr/start/end for ", basename(path),
+         " — columns are: ", paste(names(df), collapse=", "))
+  }
+  score <- if (score_col %in% names(df)) df[[score_col]] else NA_real_
+  bed <- data.frame(chr = df$chr, start = df$start, end = df$end, score = score)
+  write.table(bed, path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+}
+
+# Site-level tables
+write_tsv(test_trt,  file.path("../output/10-diff-methyl-DSS", "multifactor_treatment_test.tsv"))
+write_tsv(test_intx, file.path("../output/10-diff-methyl-DSS", "multifactor_interaction_test.tsv"))
+
+# Region-level BEDs (diff.Methy is exposed - control at the region level)
+save_bed(dmr_trt, file.path("../output/10-diff-methyl-DSS", "treatment_DMR.bed"), "diff.Methy")
+```
+
+# Two-group smoothed test within each stage
+
+Also want to try within-stage tests with DSS. For non-multifactor tets, DSS makes use of smoothing and dispersion shrinkage to essentiallys "borrow" info across neighboring CpG sites. This cvan be useful for handling low-coverage libraries, which is an existing problem with the zygot libraries.
+
+It also produces effect estimates of the same type as `methylKit` (% methylation difference), which could be useful for more direct comparisons to the conventions used in Rondon et al. 2017 and Venkataraman et al. 2024. It would also be useful for questions involving directional concordance (hyper- v hypo-methylation)
+
+WARNING: Both the Zygote and Larvae stage-specific DMLtest() runs are **very** memory-intensive. I've needed to up the node request to ~300G just to successfully complete them, and it takes a while to finish. 
+```{r per-stage-smoothed}
+
+run_stage <- function(stage_label) {
+  s_idx  <- which(meta$stage == stage_label)
+  BS_s   <- BSobj[, s_idx]
+  g_exp  <- meta$sample[s_idx][meta$treatment[s_idx] == "Exposed"]
+  g_ctrl <- meta$sample[s_idx][meta$treatment[s_idx] == "Control"]
+  dml <- DMLtest(BS_s, group1 = g_exp, group2 = g_ctrl, smoothing = TRUE)
+  out <- list(
+    dml = callDML(dml, delta = 0.25, p.threshold = 0.01),
+    dmr = callDMR(dml, delta = 0.10, p.threshold = 0.01,
+                  minlen = 50, minCG = 3, dis.merge = 100, pct.sig = 0.5)
+  )
+  # write per-stage results to disk immediately, so a later crash can't lose them
+  saveRDS(dml, file.path("../output/10-diff-methyl-DSS", paste0(stage_label, "_DMLtest.rds")))
+  rm(dml, BS_s); gc()
+  out
+}
+res_zyg <- run_stage("Zygote"); gc()
+res_lar <- run_stage("Larvae"); gc()
+
+cat("Zygote: DMLs =", nrow(res_zyg$dml), " DMRs =", nrow(res_zyg$dmr), "\n")
+cat("Larvae: DMLs =", nrow(res_lar$dml), " DMRs =", nrow(res_lar$dmr), "\n")
+```
+
+Use existing `.rds` saves if available
+```{r, eval=FALSE}
+# summarise_stage <- function(stage) {
+#   rds <- file.path("../output/10-diff-methyl-DSS", paste0(stage, "_DMLtest.rds"))
+#   if (!file.exists(rds)) {
+#     message(stage, ": ", basename(rds), " not found — skipping")
+#     return(NULL)
+#   }
+# 
+#   dml_test <- readRDS(rds)   # the full DMLtest() output (per-CpG stats)
+# 
+#   # Called DMLs and DMRs (same thresholds as the 06.3 run)
+#   dmls <- callDML(dml_test, delta = 0.25, p.threshold = 0.01)
+#   dmrs <- callDMR(dml_test, delta = 0.10, p.threshold = 0.01,
+#                   minlen = 50, minCG = 3, dis.merge = 100, pct.sig = 0.5)
+# 
+#   # callDMR returns NULL if no regions pass
+#   n_dmr <- if (is.null(dmrs)) 0L else nrow(dmrs)
+# 
+#   cat("\n===", stage, "===\n")
+#   cat("CpG sites tested:      ", nrow(dml_test), "\n")
+#   cat("DMLs (|diff|>0.25, p<0.01):", nrow(dmls), "\n")
+#   cat("  hyper (exposed > control):", sum(dmls$diff > 0), "\n")
+#   cat("  hypo  (exposed < control):", sum(dmls$diff < 0), "\n")
+#   cat("DMRs:                  ", n_dmr, "\n")
+#   if (n_dmr > 0) {
+#     cat("  mean DMR length (bp): ", round(mean(dmrs$length), 1), "\n")
+#     cat("  mean CpGs per DMR:    ", round(mean(dmrs$nCG), 1), "\n")
+#   }
+# 
+#   invisible(list(test = dml_test, dml = dmls, dmr = dmrs))
+# }
+# 
+# zyg <- summarise_stage("Zygote")
+# lar <- summarise_stage("Larvae")
+```
+
+# Save outputs
+
+```{r save-outputs2, eval=FALSE}
+# Per-stage DML BEDs (diff = mu1 - mu2 = exposed - control)
+save_bed(res_zyg$dml, file.path("../output/10-diff-methyl-DSS", "zygote_DML.bed"), "diff")
+save_bed(res_lar$dml, file.path("../output/10-diff-methyl-DSS", "larvae_DML.bed"), "diff")
+
+# Region-level BEDs (diff.Methy is exposed - control at the region level)
+save_bed(res_zyg$dmr, file.path("../output/10-diff-methyl-DSS", "zygote_DMR.bed"), "diff.Methy")
+save_bed(res_lar$dmr, file.path("../output/10-diff-methyl-DSS", "larvae_DMR.bed"), "diff.Methy")
+```
+
+
+## Directional concordance with parental gamete DMLs
+
+`07.2` only tested *positional* overlap, but we're also interested in directional agreement (hyper/hypo). 
+
+As a priliminary check for shared signal, read in the parental beds (sperm/egg DMLs, column 5 = parental methylation diff), join to the offspring DMLs on `chr` + `pos`, and compare the sign of the difference. 
+
+```{r concordance-sketch-zygote}
+offspring <- res_zyg$dml |> transmute(chr, pos, off_diff = diff)
+
+sperm <- read_tsv("../data/adult_male_dml.bed",
+                  col_names = c("chr", "start", "end", "strand", "par_diff"),
+                  col_types = "ciicd") |>
+  transmute(chr, pos = start + 1L, par_diff)       # BED is 0-based; +1 to match 1-based pos
+
+shared <- inner_join(offspring, sperm, by = c("chr", "pos")) |>
+  mutate(concordant = sign(off_diff) == sign(par_diff))
+
+summarise(shared, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+
+# Enrichment vs. chance: is n_shared more than expected given the tested background?
+# tested   <- nrow(BSobj)                          # universe of tested CpGs
+# n_off    <- nrow(offspring); n_par <- nrow(sperm); k <- nrow(shared)
+# phyper(k - 1, n_par, tested - n_par, n_off, lower.tail = FALSE)
+```
+
+```{r concordance-sketch-larvae}
+offspring <- res_lar$dml |> transmute(chr, pos, off_diff = diff)
+
+shared <- inner_join(offspring, sperm, by = c("chr", "pos")) |>
+  mutate(concordant = sign(off_diff) == sign(par_diff))
+
+summarise(shared, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+
+# Enrichment vs. chance: is n_shared more than expected given the tested background?
+# tested   <- nrow(BSobj)                          # universe of tested CpGs
+# n_off    <- nrow(offspring); n_par <- nrow(sperm); k <- nrow(shared)
+# phyper(k - 1, n_par, tested - n_par, n_off, lower.tail = FALSE)
+```
+
+
+For a real answer, however, we'd want to (a) re-evaluate parental differential methylation signal using DSS as well (instead of relying on the DMLs that were previously identified by Venkataraman et al using `methylKit`), and (b) test whether parent-offspring DML overlap exceeds chance ("enriched")

@@ -1,0 +1,131 @@
+---
+title: "06-project-slidedeck"
+author: "Kathleen Durkin"
+date: "2025-05-09"
+format: 
+    revealjs:
+      incremental: true
+editor: source
+
+---
+
+
+## Experimental Design
+
+
+![](../data/ceasmallr_samples.PNG){.absolute top=200 left=0 width="350" height="300"}
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+:::
+
+::: {.column width="50%"}
+-   *C.virginica* oyster, larval and zygote stages
+
+-   Parents exposed to OA conditions
+
+-   Whole genome bisulfite sequencing (WGBS) to map DNA methylation
+:::
+
+::::
+
+
+## Goal
+
+Evaluate intergenerational heritability of environmentally-induced DNA methylation
+
+## Methods {.scrollable}
+
+1. **Trimming**. Raw WGBS FastQs were concatenated, trimmed using `fastp`, repaired if necessary using `BBtools`, and QC'd using `FastQC` and `MultiQC`
+
+2. **Alignment**. Trimmed WGBS FastQs were aligned to *C. virginica* genome using `Bismark` and `Bowtie`, summarized using `MultiQC`. (Re-analysis in progress)
+
+3. **Deduplication**. Aligned reads were deduplicated using `Bismark` to remove read duplication caused by PCR amplification during WGBS. (Re-analysis in progress)
+
+4. **Methylation extraction**. `Bismark` was used to call the methylation state of all sequenced cytosine positions. (Re-analysis in progress)
+
+5. **Differential methylation analysis**. `methylKit` used to identify differential methylation between parental treatment groups and between life stages.
+
+## Methylation calls {.scrollable}
+
+```{r}
+#| echo: TRUE
+#| code-fold: true
+
+meth <- read.csv("../output/06-differential-methylation/filtered-CpGs-parental-treatment.csv")
+head(meth)
+```
+
+## Differential Methylation Analysis {.scrollable}
+
+```{.python code-line-numbers="|2-3|5-11|13-16"}
+
+### Normalize the coverage values among samples.
+myobj.filt.norm <- normalizeCoverage(myobj.filt, method = "median")
+
+### Filter to retain most variable CpGs
+# get percent methylation matrix
+pm=percMethylation(meth)
+# calculate standard deviation of CpGs
+sds=matrixStats::rowSds(pm)
+# keep only CpG with standard deviations larger than 2
+meth <- meth[sds > 2]
+
+### Test for differential methylation
+myDiff <- calculateDiffMeth(meth,
+                            overdispersion = "MN",
+                            adjust="BH")
+```
+
+
+## Preliminary Results {.scrollable}
+
+**CpG sites**  are differentially methylated by **parental treatment**
+
+```{r}
+#| echo: TRUE
+#| code-fold: true
+
+# Load packages
+library(ggplot2)
+library(dplyr)
+# Read in data
+myDiff <- read.csv("../output/06-differential-methylation/DM-CpGs-parental-treatment.csv")
+# Label significance
+myDiff$significant <- myDiff$pvalue < 0.05
+
+# Plot
+ggplot(myDiff, aes(x = -log10(qvalue), y = meth.diff, color = significant)) +
+  geom_point(size = 1.5) +
+  scale_color_manual(values = c("gray" = "gray", "TRUE" = "red", "FALSE" = "gray")) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  theme_minimal() +
+  labs(
+    x = expression(-log[10](qvalue)),
+    y = "Methylation Difference",
+    color = "Significant (p < 0.05)",
+    title = "CpGs Differentially Methylated by Parental Treatment"
+  )
+
+```
+
+## Preliminary Results {.scrollable}
+
+**CpG sites**  are differentially methylated by **parental treatment**
+
+```{r}
+#| echo: TRUE
+#| code-fold: true
+
+myDiff %>% filter(significant == "TRUE") %>% select(-X, -significant)
+```
+
+## Next steps
+
+- Complete re-analysis steps (alignment, methylation extraction)
+
+- Analyze *regional* differential methylation between parental treatments
+
+- Differential methylation analysis between *life stages*

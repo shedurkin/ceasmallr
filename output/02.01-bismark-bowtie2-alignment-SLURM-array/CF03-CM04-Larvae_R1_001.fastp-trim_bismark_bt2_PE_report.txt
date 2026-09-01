@@ -1,0 +1,1 @@
+Bismark report for: /gscratch/srlab/kdurkin1/kathleen-coral/project/data/trimmed-WGBS-reads/CF03-CM04-Larvae_R1_001.fastp-trim.fq.gz and /gscratch/srlab/kdurkin1/kathleen-coral/project/data/trimmed-WGBS-reads/CF03-CM04-Larvae_R2_001.fastp-trim.fq.gz (version: v0.24.2)

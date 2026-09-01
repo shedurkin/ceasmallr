@@ -1,0 +1,41 @@
+---
+title: "07-DML-adult-comparison"
+author: "Kathleen Durkin"
+date: "2025-05-16"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+In `06.1-differential-methylation-split-lifestage` I identified loci in the larval samples that are differentially methylated based on parental OA treatment. I now want to see whether any of those DMLs were also present in the adults
+
+Note: I'm first checking the adult DML tables, but I may also want to look a the methylomes of both the larvae and the larvae's parents in more detail, since not all adult oysters whose gametes were sequenced in Venkatamaran et al. 2024 were used for fertilization crosses.
+
+Download adult DMLs (both female (eggs) and male (sperm))
+```{r, engine='bash'}
+curl -L https://github.com/sr320/ceabigr/raw/refs/heads/main/data/female_dml.bed -o ../data/adult_female_dml.bed
+curl -L https://github.com/sr320/ceabigr/raw/refs/heads/main/data/male_dml.bed -o ../data/adult_male_dml.bed
+```
+
+```{r, engine='bash'}
+echo "Larval DMLs that are also differentially methylated in female parents"
+/home/shared/bedtools2/bin/bedtools intersect -a ../output/06.1-differential-methylation-split-lifestage/larvae_diff25_DML.bed -b ../data/adult_female_dml.bed
+
+echo ""
+
+echo "Larval DMLs that are also differentially methylated in male parents"
+/home/shared/bedtools2/bin/bedtools intersect -a ../output/06.1-differential-methylation-split-lifestage/larvae_diff25_DML.bed -b ../data/adult_male_dml.bed
+```
+
+

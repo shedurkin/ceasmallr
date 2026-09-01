@@ -1,0 +1,352 @@
+---
+title: "09-multifactor-diff-methyl"
+author: "Kathleen Durkin"
+date: "2025-06-10"
+always_allow_html: true
+output: 
+  github_document:
+  toc: true
+toc_depth: 3
+number_sections: true
+html_preview: true 
+bookdown::html_document2:
+  theme: cosmo
+toc: true
+toc_float: true
+code_folding: show
+code_download: true
+---
+
+Again, I'll be excluding the following low-quantity samples
+
+- CF01-CM01-Zygote (40.4 M)
+
+- CF08-CM04-Larvae (6.2 M)
+
+- CF08-CM05-Larvae (6.2 M)
+
+- EF04-EM04-Zygote (97.3 M)
+
+- EF05-EM05-Zygote (53.8 M)
+
+
+Inputs: 
+
+-   Methylation calls extracted from WGBS reads using `Bismark`: `[].fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz`, stored on Gannet: [offspring data](https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/), [parent data](https://gannet.fish.washington.edu/seashell/bu-mox/scrubbed/120321-cvBS/)
+
+
+# Download methylation calls if needed
+
+Offspring:
+```{r, engine='bash', eval=FALSE}
+# Run wget to retrieve FastQs and MD5 files
+# Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory
+wget \
+--directory-prefix ../data/bismark-methyl-extraction \
+--recursive \
+--no-check-certificate \
+--continue \
+--cut-dirs 4 \
+--no-host-directories \
+--no-parent \
+--quiet \
+--no-clobber \
+--accept="*.deduplicated.bismark.cov.gz,checksums.md5" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/
+
+```
+
+```{r, engine='bash', eval=FALSE}
+cd ../data/bismark-methyl-extraction/
+
+echo "How many methylation calling files were downloaded?"
+ls *.deduplicated.bismark.cov.gz | wc -l
+
+echo ""
+
+echo "Check file checksums:"
+grep '.deduplicated.bismark.cov.gz' checksums.md5 | md5sum -c -
+```
+
+We should have N=32 (n=15 ControlxControl crosses, n=17 ExposedxExposed crosses)
+
+Parent:
+```{r, engine='bash'}
+# Parent metadata
+curl -L https://github.com/sr320/ceabigr/raw/refs/heads/main/data/adult-meta.csv -o ../data/adult-meta.csv
+```
+
+```{r, engine='bash', eval=FALSE}
+# Run wget to retrieve FastQs and MD5 files
+# Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory
+wget \
+--directory-prefix ../data/bismark-methyl-extraction-parent \
+--recursive \
+--no-check-certificate \
+--continue \
+--cut-dirs 4 \
+--no-host-directories \
+--no-parent \
+--quiet \
+--no-clobber \
+--accept="*.deduplicated.bismark.cov.gz,checksums.md5" https://gannet.fish.washington.edu/seashell/bu-mox/scrubbed/120321-cvBS/
+
+```
+
+Rename files to instead use the updated Sample IDs
+```{r, engine='bash'}
+cd ../data/bismark-methyl-extraction-parent/
+
+metadata="../adult-meta.csv"
+
+# Skip header and read line by line
+tail -n +2 "$metadata" | while IFS=',' read -r SampleID OldSampleID Treatment Sex TreatmentN ParentID; do
+  # Find files starting with SampleID
+  for file in ${SampleID}*; do
+    # Check that file exists to avoid glob expansion issues
+    [ -e "$file" ] || continue
+
+    # New file name: replace SampleID with ParentID
+    newname="${file/$SampleID/$ParentID}"
+
+    # Rename the file
+    echo "Renaming $file to $newname"
+    mv "$file" "$newname"
+  done
+done
+```
+
+# methylKit
+
+Load packages
+```{r}
+# Install packages if necessary
+# if (!require("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("methylKit")
+# BiocManager::install("genomation")
+
+# Load
+library(tidyr)
+library(dplyr)
+library(methylKit)
+library(genomation)
+library(GenomicRanges)
+library(gridExtra)
+library(ggplot2)
+library(ggfortify)
+```
+
+# Offspring
+
+## Create object
+
+```{r, cache=FALSE}
+
+# Define path to my samples directory
+data_dir_offspring <- "../data/bismark-methyl-extraction"
+
+# List all .bismark.cov.gz files in the samples directory
+file.list_offspring <- list.files(path = data_dir_offspring, pattern = "\\.bismark.cov.gz$", full.names = TRUE)
+# Exclude samples with less than 100M cytosines analyzed (poor coverage)
+file.list_offspring <- file.list_offspring[!grepl("CF01-CM01-Zygote|CF08-CM04-Larvae|CF08-CM05-Larvae|EF04-EM04-Zygote|EF05-EM05-Zygote", file.list_offspring)]
+
+
+# Extract just the filenames
+file.names_offspring <- basename(file.list_offspring)
+
+# Create sample IDs by stripping file extensions
+sample.ids_offspring <- sub("_R1_001.fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz", "", file.names_offspring)
+sample.ids_offspring <- sub("_R1_001.fastp-trim.REPAIRED_bismark_bt2_pe.deduplicated.bismark.cov.gz", ".REP", sample.ids_offspring)
+
+
+# Assign treatment based on first letter of filename
+# E = parents exposed to OA treatment
+# C = parents held in control
+treatment_offspring <- ifelse(startsWith(file.names_offspring, "E"), 1,
+                    ifelse(startsWith(file.names_offspring, "C"), 0, NA))
+
+# Read in methylation data
+myobj_offspring <- methRead(as.list(file.list_offspring),
+  sample.id = as.list(sample.ids_offspring),
+  pipeline = "bismarkCoverage",
+  assembly = "mm10",
+  treatment = treatment_offspring,
+  mincov = 5
+)
+
+# Inspect
+str(myobj_offspring)
+head(myobj_offspring[[1]])
+```
+
+## Filter
+
+We want to filter out bases with low coverage (<10 reads) because they will reduce reliability in downstream analyses. We also want to discard any bases with exceptionally high coverage (in the 99.9th percentile), as this is an indication of PCR amplification bias.
+```{r}
+myobj.filt_offspring <- filterByCoverage(myobj_offspring,
+                      lo.count=5,
+                      lo.perc=NULL,
+                      hi.count=NULL,
+                      hi.perc=99.9)
+```
+
+## Normalization
+
+Next, we normalize the coverage values among samples.
+
+```{r}
+myobj.filt.norm_offspring <- normalizeCoverage(myobj.filt_offspring, method = "median")
+```
+
+## Merge
+
+Data doesn't appear to be two-stranded, so will use `destrand=FALSE`
+
+```{r, cache=TRUE}
+methylBase_offspring <- methylKit::unite(myobj.filt.norm_offspring, destrand=FALSE)
+nrow(methylBase_offspring)
+```
+
+After removing low-quantity samples and reducing minimum coverage, we retain 22,874 CpG sites
+
+
+# Parents
+
+## Create object
+
+```{r, cache=FALSE}
+
+# Define path to my samples directory
+data_dir_parents <- "../data/bismark-methyl-extraction-parent"
+
+# List all .bismark.cov.gz files in the samples directory
+file.list_parents <- list.files(path = data_dir_parents, pattern = "\\.bismark.cov.gz$", full.names = TRUE)
+
+# Extract just the filenames
+file.names_parents <- basename(file.list_parents)
+
+# Create sample IDs by stripping file extensions
+sample.ids_parents <- sub("_R1_val_1_bismark_bt2_pe.deduplicated.bismark.cov", "", file.names_parents)
+
+
+# Assign treatment based on first letter of filename
+# E = parents exposed to OA treatment
+# C = parents held in control
+treatment_parents <- ifelse(startsWith(file.names_parents, "E"), 1,
+                    ifelse(startsWith(file.names_parents, "C"), 0, NA))
+
+# Read in methylation data
+myobj_parents <- methRead(as.list(file.list_parents),
+  sample.id = as.list(sample.ids_parents),
+  pipeline = "bismarkCoverage",
+  assembly = "mm10",
+  treatment = treatment_parents,
+  mincov = 5
+)
+
+# Inspect
+str(myobj_parents)
+head(myobj_parents[[1]])
+```
+
+## Filter
+
+We want to filter out bases with low coverage (<10 reads) because they will reduce reliability in downstream analyses. We also want to discard any bases with exceptionally high coverage (in the 99.9th percentile), as this is an indication of PCR amplification bias.
+```{r}
+myobj.filt_parents <- filterByCoverage(myobj_parents,
+                      lo.count=10,
+                      lo.perc=NULL,
+                      hi.count=NULL,
+                      hi.perc=99.9)
+```
+
+## Normalization
+
+Next, we normalize the coverage values among samples.
+```{r}
+myobj.filt.norm_parents <- normalizeCoverage(myobj.filt_parents, method = "median")
+```
+
+## Merge
+
+Data doesn't appear to be two-stranded, so will use `destrand=FALSE`
+```{r, cache=TRUE}
+methylBase_parents <- methylKit::unite(myobj.filt.norm_parents, destrand=FALSE)
+nrow(methylBase_parents)
+```
+
+After removing low-quantity samples and reducing minimum coverage, we retain 2,447,226 CpG sites
+
+
+# PCA
+
+```{r}
+# Extract percent methylation matrices
+meth_offspring <- percMethylation(methylBase_offspring)
+meth_parent    <- percMethylation(methylBase_parents)
+
+# Only keep positions that are present in all offspring *and* parents
+# Get positions for each matrix (chr, start, strand)
+pos_offspring <- getData(methylBase_offspring)[, c("chr", "start", "strand")]
+pos_parent    <- getData(methylBase_parents)[, c("chr", "start", "strand")]
+
+# Find shared CpGs
+common_pos <- inner_join(pos_offspring, pos_parent, by = c("chr", "start", "strand"))
+
+# Subset matrices to shared positions
+# Create row indices for shared CpGs in both matrices
+idx_offspring <- which(paste(pos_offspring$chr, pos_offspring$start, pos_offspring$strand) %in%
+                         paste(common_pos$chr, common_pos$start, common_pos$strand))
+idx_parent <- which(paste(pos_parent$chr, pos_parent$start, pos_parent$strand) %in%
+                      paste(common_pos$chr, common_pos$start, common_pos$strand))
+
+meth_offspring_common <- meth_offspring[idx_offspring, ]
+meth_parent_common    <- meth_parent[idx_parent, ]
+
+# Combine the matrices
+combined_matrix <- cbind(meth_offspring_common, meth_parent_common)
+
+# Transpose for PCA
+pca_input <- t(combined_matrix)
+
+# Remove CpGs (columns) with zero variance across all samples (will break PCA)
+pca_input_filtered <- pca_input[, apply(pca_input, 2, var, na.rm = TRUE) != 0]
+
+# Run PCA
+pca_result <- prcomp(pca_input_filtered, scale. = TRUE)
+```
+
+```{r}
+# Create metadata for plotting
+sample_names <- rownames(pca_input_filtered)
+# Identify sample roles and traits
+metadata <- data.frame(
+  Sample = sample_names,
+  stringsAsFactors = FALSE
+) %>%
+  mutate(
+    # Assign 'Offspring' if name contains a dash (e.g., CF01-CM03)
+    Role = ifelse(grepl("-", Sample), "Offspring", "Parent"),
+    
+    # Extract treatment from the first character
+    Treatment = substr(Sample, 1, 1),
+    
+    # Assign combined sex/role label
+    Sex = case_when(
+      Role == "Offspring" ~ "Offspring",
+      grepl("M", substr(Sample, 2, 2)) ~ "Male Parent",
+      grepl("F", substr(Sample, 2, 2)) ~ "Female Parent",
+      TRUE ~ "Unknown"
+    ),
+    
+    # Clean up treatment
+    Treatment = recode(Treatment, "C" = "Control", "E" = "Exposed")
+  )
+
+autoplot(pca_result, data = metadata, colour = "Sex", shape = "Treatment", size=2) +
+  ggtitle("PCA of Methylation Profiles") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+

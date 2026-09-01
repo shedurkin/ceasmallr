@@ -1,0 +1,242 @@
+---
+title: "06-differential-methylation"
+author: "Kathleen Durkin"
+date: "2025-04-22"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+Performing differential methylation analysis using the `methylkit` package.
+
+Inputs: 
+
+-   Methylation calls extracted from WGBS reads using `Bismark`: `[].fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz`, stored on [Gannet](https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/)
+
+
+# Download methylation calls
+
+```{r, engine='bash', eval=FALSE}
+# Run wget to retrieve FastQs and MD5 files
+# Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory
+wget \
+--directory-prefix ../data/bismark-methyl-extraction \
+--recursive \
+--no-check-certificate \
+--continue \
+--cut-dirs 4 \
+--no-host-directories \
+--no-parent \
+--quiet \
+--no-clobber \
+--accept="*.deduplicated.bismark.cov.gz,checksums.md5" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/
+
+```
+
+```{r, engine='bash'}
+cd ../data/bismark-methyl-extraction/
+
+echo "How many methylation calling files were downloaded?"
+ls *.deduplicated.bismark.cov.gz | wc -l
+
+echo ""
+
+echo "Check file checksums:"
+grep '.deduplicated.bismark.cov.gz' checksums.md5 | md5sum -c -
+```
+
+We should have N=32 (n=15 ControlxControl crosses, n=17 ExposedxExposed crosses)
+
+
+# methylKit
+
+Load packages
+```{r}
+# Install packages if necessary
+# if (!require("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("methylKit")
+# BiocManager::install("genomation")
+
+# Load
+library(tidyr)
+library(dplyr)
+library(methylKit)
+library(genomation)
+library(GenomicRanges)
+library(gridExtra)
+library(ggplot2)
+```
+
+Using tutorial: https://nbis-workshop-epigenomics.readthedocs.io/en/latest/content/tutorials/methylationSeq/Seq_Tutorial.html#introduction
+
+# Create object
+
+```{r, cache=TRUE}
+
+# Define path to my samples directory
+data_dir <- "../data/bismark-methyl-extraction"
+
+# List all .bismark.cov.gz files in the samples directory
+file.list <- list.files(path = data_dir, pattern = "\\.bismark.cov.gz$", full.names = TRUE)
+# Exclude CF08-CM04-Larvae and CF08-CM05-Larvae (very low coverage and methylation)
+file.list <- file.list[!grepl("CF08-CM04-Larvae|CF08-CM05-Larvae", file.list)]
+
+# Extract just the filenames
+file.names <- basename(file.list)
+
+# Create sample IDs by stripping file extensions
+sample.ids <- sub("_R1_001.fastp-trim_bismark_bt2_pe.deduplicated.bismark.cov.gz", "", file.names)
+sample.ids <- sub("_R1_001.fastp-trim.REPAIRED_bismark_bt2_pe.deduplicated.bismark.cov.gz", ".REP", sample.ids)
+
+
+# Assign treatment based on first letter of filename
+# E = parents exposed to OA treatment
+# C = parents held in control
+treatment <- ifelse(startsWith(file.names, "E"), 1,
+                    ifelse(startsWith(file.names, "C"), 0, NA))
+
+# Read in methylation data
+myobj <- methRead(as.list(file.list),
+  sample.id = as.list(sample.ids),
+  pipeline = "bismarkCoverage",
+  assembly = "mm10",
+  treatment = treatment,
+  mincov = 10
+)
+
+# Inspect
+str(myobj)
+head(myobj[[1]])
+```
+
+
+# Descriptive statistics
+
+```{r}
+# Get a histogram of the methylation percentage per sample
+for (i in 1:length(myobj)){
+  getMethylationStats(myobj[[i]], plot=TRUE, both.strands=FALSE)
+}
+```
+
+CF08-CM04-Larvae.REP and CF08-CM05-Larvae have almost no methylated sites and poor coverage. I think I'll go back and exclude them from the analysis for now.
+
+```{r}
+for (i in 1:length(myobj)){
+  getCoverageStats(myobj[[i]], plot=TRUE, both.strands=FALSE)
+  # # Get percentile data by setting plot=FALSE
+  # getCoverageStats(myobj[[i]], plot=FALSE, both.strands=FALSE)
+}
+```
+
+
+# Filter
+
+We want to filter out bases with low coverage (<10 reads) because they will reduce reliability in downstream analyses. We also want to discard any bases with exceptionally high coverage (in the 99.9th percentile), as this is an indication of PCR amplification bias.
+```{r}
+myobj.filt <- filterByCoverage(myobj,
+                      lo.count=10,
+                      lo.perc=NULL,
+                      hi.count=NULL,
+                      hi.perc=99.9)
+```
+
+
+# Normalization
+
+Next, we normalize the coverage values among samples.
+
+```{r}
+myobj.filt.norm <- normalizeCoverage(myobj.filt, method = "median")
+```
+
+# Merge
+
+Data doesn't appear to be two-stranded, so will use `destrand=FALSE`
+
+```{r, cache=TRUE}
+meth <- unite(myobj.filt.norm, destrand=FALSE)
+nrow(meth)
+```
+
+We retain 114 CpG site that have coverage in all samples
+
+# Filter 2
+
+```{r}
+# get percent methylation matrix
+pm=percMethylation(meth)
+
+# calculate standard deviation of CpGs
+sds=matrixStats::rowSds(pm)
+
+# Visualize the distribution of the per-CpG standard deviation
+# to determine a suitable cutoff
+hist(sds, breaks = 100)
+
+# keep only CpG with standard deviations larger than 2%
+meth <- meth[sds > 2]
+
+# This leaves us with this number of CpG sites
+nrow(meth)
+```
+
+Could also remove known C/T SNPs if we want (will exclude this step for now)
+
+```{r}
+# # give the locations of 2 example SNPs
+# mut <- GRanges(seqnames=c("chr1","chr18"),
+#          ranges=IRanges(start=c(3020690, 9853326),
+#                         end=c(3020690,9853326)))
+# 
+# # select CpGs that do not overlap with mutations
+# meth <- meth[!as(meth,"GRanges") %over% mut, ]
+```
+
+# Data structure/Outlier detection
+
+```{r}
+getCorrelation(meth,plot=FALSE)
+```
+
+```{r}
+clusterSamples(meth, dist="correlation", method="ward", plot=TRUE)
+```
+
+```{r}
+PCASamples(meth)
+```
+
+# DIfferential methylation
+
+## CpG sites
+
+```{r}
+# Test for differential methylation... This might take a few minutes.
+myDiff <- calculateDiffMeth(meth,
+                            overdispersion = "MN",
+                            adjust="BH")
+
+myDiff[myDiff$pvalue < 0.05,]
+```
+
+There are 3 CpG sites that are differentially methylated based on parental exposure.
+
+```{r}
+# Simple volcano plot to get an overview of differential methylation
+plot(myDiff$meth.diff, -log10(myDiff$qvalue))
+abline(v=0)
+```
+

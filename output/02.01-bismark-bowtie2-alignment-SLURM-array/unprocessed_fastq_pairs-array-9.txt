@@ -1,0 +1,1 @@
+CF01-CM01-Zygote_R1_001.fastp-trim.REPAIRED.fq.gz CF01-CM01-Zygote_R2_001.fastp-trim.REPAIRED.fq.gz

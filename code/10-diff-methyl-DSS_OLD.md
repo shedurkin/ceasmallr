@@ -1,23 +1,22 @@
-10-diff-methyl-DSS
+06.3-differential-methylation-DSS
 ================
 Kathleen Durkin
-2026-09-04
+2026-08-31
 
 - [1 Setup](#1-setup)
-- [2 Download methylation calls](#2-download-methylation-calls)
-- [3 Read Bismark coverage into a BSseq
-  object](#3-read-bismark-coverage-into-a-bsseq-object)
-- [4 Multi-factor model (design-level
-  tests)](#4-multi-factor-model-design-level-tests)
-  - [4.1 Parental treatment effect](#41-parental-treatment-effect)
-  - [4.2 Stage-dependence of the treatment
-    effect](#42-stage-dependence-of-the-treatment-effect)
-- [5 Save outputs](#5-save-outputs)
-- [6 Two-group smoothed test within each
-  stage](#6-two-group-smoothed-test-within-each-stage)
-- [7 Save outputs](#7-save-outputs)
-  - [7.1 Directional concordance with parental gamete
-    DMLs](#71-directional-concordance-with-parental-gamete-dmls)
+- [2 Read Bismark coverage into a BSseq
+  object](#2-read-bismark-coverage-into-a-bsseq-object)
+- [3 Multi-factor model (design-level
+  tests)](#3-multi-factor-model-design-level-tests)
+  - [3.1 Parental treatment effect](#31-parental-treatment-effect)
+  - [3.2 Stage-dependence of the treatment
+    effect](#32-stage-dependence-of-the-treatment-effect)
+- [4 Save outputs](#4-save-outputs)
+- [5 Two-group smoothed test within each
+  stage](#5-two-group-smoothed-test-within-each-stage)
+- [6 Save outputs](#6-save-outputs)
+  - [6.1 Directional concordance with parental gamete
+    DMLs](#61-directional-concordance-with-parental-gamete-dmls)
 
 Differential methylation analysis using the `DSS` package (Dispersion
 Shrinkage for Sequencing data)
@@ -91,42 +90,7 @@ library(tibble)
 library(ggplot2)
 ```
 
-# 2 Download methylation calls
-
-(if necessary)
-
-``` bash
-# Run wget to retrieve FastQs and MD5 files
-# Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory
-wget \
---directory-prefix ../data/bismark-methyl-extraction \
---recursive \
---no-check-certificate \
---continue \
---cut-dirs 4 \
---no-host-directories \
---no-parent \
---quiet \
---no-clobber \
---accept="*.deduplicated.bismark.cov.gz,checksums.md5" https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/
-```
-
-``` bash
-cd ../data/bismark-methyl-extraction/
-
-echo "How many methylation calling files were downloaded?"
-ls *.deduplicated.bismark.cov.gz | wc -l
-
-echo ""
-
-echo "Check file checksums:"
-grep '.deduplicated.bismark.cov.gz' checksums.md5 | md5sum -c -
-```
-
-We should have N=32 (n=15 ControlxControl crosses, n=17 ExposedxExposed
-crosses)
-
-# 3 Read Bismark coverage into a BSseq object
+# 2 Read Bismark coverage into a BSseq object
 
 Bismark `.cov` columns (no header):
 `chr  start  end  meth%  count_methylated  count_unmethylated`. For
@@ -146,8 +110,8 @@ drop <- c("CF01-CM01-Zygote", "CF08-CM04-Larvae", "CF08-CM05-Larvae", "EF04-EM04
 file.list <- file.list[!str_detect(basename(file.list), str_c(drop, collapse = "|"))]
 
 # format sample IDs
-sample.ids <- basename(file.list) %>%
-  str_replace("_R1_001\\.fastp-trim_bismark_bt2_pe\\.deduplicated\\.bismark\\.cov\\.gz$", "") %>%
+sample.ids <- basename(file.list) |>
+  str_replace("_R1_001\\.fastp-trim_bismark_bt2_pe\\.deduplicated\\.bismark\\.cov\\.gz$", "") |>
   str_replace("_R1_001\\.fastp-trim\\.REPAIRED_bismark_bt2_pe\\.deduplicated\\.bismark\\.cov\\.gz$", ".REP")
 
 # Grab treatment and lifestage info from Sample IDs
@@ -162,7 +126,7 @@ meta <- tibble(
   stage     = case_when(str_detect(sample.ids, "Zygote") ~ "Zygote",
                         str_detect(sample.ids, "Larvae") ~ "Larvae",
                         TRUE ~ NA_character_)
-) %>%
+) |>
   # reference levels: Control (so the coefficient = effect of exposure) and Zygote (earlier stage)
   mutate(treatment = factor(treatment, levels = c("Control", "Exposed")),
          stage     = factor(stage,     levels = c("Zygote",  "Larvae")))
@@ -194,13 +158,13 @@ BSobj <- read.bismark(files          = meta$file,
 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |===                                                                   |   4%  |                                                                              |=====                                                                 |   8%  |                                                                              |========                                                              |  12%  |                                                                              |===========                                                           |  15%  |                                                                              |=============                                                         |  19%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |======================                                                |  31%  |                                                                              |========================                                              |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |==============================                                        |  42%  |                                                                              |================================                                      |  46%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================                                |  54%  |                                                                              |========================================                              |  58%  |                                                                              |===========================================                           |  62%  |                                                                              |==============================================                        |  65%  |                                                                              |================================================                      |  69%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |=========================================================             |  81%  |                                                                              |===========================================================           |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |=================================================================     |  92%  |                                                                              |===================================================================   |  96%  |                                                                              |======================================================================| 100%
 
-    ## Done in 55.1 secs
+    ## Done in 56.6 secs
 
     ## [read.bismark] Parsing files and constructing 'M' and 'Cov' matrices ...
 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |===                                                                   |   4%  |                                                                              |=====                                                                 |   7%  |                                                                              |========                                                              |  11%  |                                                                              |==========                                                            |  15%  |                                                                              |=============                                                         |  19%  |                                                                              |================                                                      |  22%  |                                                                              |==================                                                    |  26%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |====================================================                  |  74%  |                                                                              |======================================================                |  78%  |                                                                              |=========================================================             |  81%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  89%  |                                                                              |=================================================================     |  93%  |                                                                              |===================================================================   |  96%  |                                                                              |======================================================================| 100%
 
-    ## Done in 27.2 secs
+    ## Done in 27 secs
 
     ## [read.bismark] Constructing BSseq object ...
 
@@ -215,8 +179,8 @@ BSobj    # positions are the UNION across samples; missing positions get N = 0
     ## All assays are in-memory
 
 ``` r
-# DSS tolerates missingness
-# For now, require non-zero coverage in at least half the samples of each treatment x stage cell to reduce noise
+# DSS tolerates missingness, but a light filter helps reduce noise
+# For now, require non-zero coverage in at least half the samples of each treatment x stage cell.
 # (MAY WANT TO ADJUST LATER)
 cov_mat <- getCoverage(BSobj, type = "Cov")           # loci x samples
 cells   <- interaction(meta$treatment, meta$stage, drop = TRUE)
@@ -232,28 +196,7 @@ cat("Loci retained after coverage filter:", nrow(BSobj), "\n")
 
     ## Loci retained after coverage filter: 7594836
 
-EDIT: All of the downstream model fitting calls are *super* intensive
-and take forever to run. Since I have to run this from Rscript, and thus
-cannot easily retain R objects between runs, this is making script
-troubleshooting super time-intensive and annoying. To facilitate
-troubleshooting, I’m going to add a test run option that will randomly
-subsample a tiny fraction of the data to proceed with:
-
-``` r
-# Keeps all samples but randomly thins loci genome-wide
-# set test_run to FALSE for full-data runs
-test_run  <- FALSE 
-test_frac <- 0.02      # keep 2% of loci
-
-if (test_run) {
-  set.seed(1)
-  idx   <- sort(sample(nrow(BSobj), size = floor(nrow(BSobj) * test_frac)))
-  BSobj <- BSobj[idx, ]
-  cat("TEST RUN — loci subsampled to:", nrow(BSobj), "\n")
-}
-```
-
-# 4 Multi-factor model (design-level tests)
+# 3 Multi-factor model (design-level tests)
 
 Fit an interaction model for tests of *stage-dependence* (does effect of
 parental exposure differ between the life stages)
@@ -280,7 +223,7 @@ colnames(fit_int$X)
 # Expected: "(Intercept)" "treatmentExposed" "stageLarvae" "treatmentExposed:stageLarvae"
 ```
 
-## 4.1 Parental treatment effect
+## 3.1 Parental treatment effect
 
 Fit an additive model (no interaction) to test for signal of parental
 treatment effect while *controlling for stage*.
@@ -323,7 +266,7 @@ cat("Treatment DMRs:", nrow(dmr_trt), "\n")
 
     ## Treatment DMRs: 1788
 
-## 4.2 Stage-dependence of the treatment effect
+## 3.2 Stage-dependence of the treatment effect
 
 A *null* interaction at treatment-associated loci = inherited signal
 preserved across stages (H1.2 supported). A *significant* interaction =
@@ -350,41 +293,28 @@ cat("Loci with stage-dependent treatment effect (FDR < 0.05):", nrow(dml_intx), 
 
     ## Loci with stage-dependent treatment effect (FDR < 0.05): 14
 
-# 5 Save outputs
+# 4 Save outputs
 
 ``` r
 save_bed <- function(df, path, score_col) {
-  # callDMR() returns NULL when no regions pass; callDML() can return 0 rows.
-  # Write an empty .bed in that case rather than erroring, so a knit completes.
-  if (is.null(df) || nrow(df) == 0) {
-    file.create(path)
-    message("save_bed: no rows for ", basename(path), " — wrote empty file.")
-    return(invisible(NULL))
-  }
-  # Region tables (callDMR) carry chr/start/end; single-base DML tables
-  # (DMLtest/callDML) carry chr/pos — derive a 0-based, half-open interval.
-  if (all(c("chr","start","end") %in% names(df))) {
-    start <- df$start; end <- df$end
-  } else if (all(c("chr","pos") %in% names(df))) {
-    start <- df$pos - 1L; end <- df$pos
-  } else {
-    stop("save_bed: df lacks chr/start/end or chr/pos for ", basename(path),
-         " - columns are: ", paste(names(df), collapse=", "))
+  if (!all(c("chr","start","end") %in% names(df))) {
+    stop("save_bed: df lacks chr/start/end for ", basename(path),
+         " — columns are: ", paste(names(df), collapse=", "))
   }
   score <- if (score_col %in% names(df)) df[[score_col]] else NA_real_
-  bed <- data.frame(chr = df$chr, start = start, end = end, score = score)
+  bed <- data.frame(chr = df$chr, start = df$start, end = df$end, score = score)
   write.table(bed, path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
 }
 
 # Site-level tables
-write_tsv(test_trt,  file.path("../output/10-diff-methyl-DSS", "multifactor_treatment_test.tsv"))
-write_tsv(test_intx, file.path("../output/10-diff-methyl-DSS", "multifactor_interaction_test.tsv"))
+write_tsv(test_trt,  file.path("../output/06.3-differential-methylation-DSS", "multifactor_treatment_test.tsv"))
+write_tsv(test_intx, file.path("../output/06.3-differential-methylation-DSS", "multifactor_interaction_test.tsv"))
 
-# Region-level BEDs (multifactor DMR uses `areaStat` as region-level test statistic)
-save_bed(dmr_trt, file.path("../output/10-diff-methyl-DSS", "treatment_DMR.bed"), "areaStat")
+# Region-level BEDs (diff.Methy is exposed - control at the region level)
+save_bed(dmr_trt, file.path("../output/06.3-differential-methylation-DSS", "treatment_DMR.bed"), "diff.Methy")
 ```
 
-# 6 Two-group smoothed test within each stage
+# 5 Two-group smoothed test within each stage
 
 Also want to try within-stage tests with DSS. For non-multifactor tets,
 DSS makes use of smoothing and dispersion shrinkage to essentiallys
@@ -415,7 +345,7 @@ run_stage <- function(stage_label) {
                   minlen = 50, minCG = 3, dis.merge = 100, pct.sig = 0.5)
   )
   # write per-stage results to disk immediately, so a later crash can't lose them
-  saveRDS(dml, file.path("../output/10-diff-methyl-DSS", paste0(stage_label, "_DMLtest.rds")))
+  saveRDS(dml, file.path("../output/06.3-differential-methylation-DSS", paste0(stage_label, "_DMLtest.rds")))
   rm(dml, BS_s); gc()
   out
 }
@@ -427,8 +357,8 @@ res_zyg <- run_stage("Zygote"); gc()
     ## Computing test statistics ...
 
     ##             used   (Mb) gc trigger    (Mb)   max used    (Mb)
-    ## Ncells  10574476  564.8   25860940  1381.2   25860940  1381.2
-    ## Vcells 987304034 7532.6 2997073949 22865.9 2997055760 22865.8
+    ## Ncells  10572881  564.7   25790962  1377.4   25790962  1377.4
+    ## Vcells 987298622 7532.5 2997064826 22865.8 2997050377 22865.7
 
 ``` r
 res_lar <- run_stage("Larvae"); gc()
@@ -439,8 +369,8 @@ res_lar <- run_stage("Larvae"); gc()
     ## Computing test statistics ...
 
     ##             used   (Mb) gc trigger    (Mb)   max used    (Mb)
-    ## Ncells  10574540  564.8   25860940  1381.2   25860940  1381.2
-    ## Vcells 987412396 7533.4 2877254991 21951.8 3596560766 27439.6
+    ## Ncells  10572945  564.7   25790962  1377.4   25790962  1377.4
+    ## Vcells 987406984 7533.4 2877246233 21951.7 3596555354 27439.6
 
 ``` r
 cat("Zygote: DMLs =", nrow(res_zyg$dml), " DMRs =", nrow(res_zyg$dmr), "\n")
@@ -458,7 +388,7 @@ Use existing `.rds` saves if available
 
 ``` r
 # summarise_stage <- function(stage) {
-#   rds <- file.path("../output/10-diff-methyl-DSS", paste0(stage, "_DMLtest.rds"))
+#   rds <- file.path("../output/06.3-differential-methylation-DSS", paste0(stage, "_DMLtest.rds"))
 #   if (!file.exists(rds)) {
 #     message(stage, ": ", basename(rds), " not found — skipping")
 #     return(NULL)
@@ -492,19 +422,19 @@ Use existing `.rds` saves if available
 # lar <- summarise_stage("Larvae")
 ```
 
-# 7 Save outputs
+# 6 Save outputs
 
 ``` r
 # Per-stage DML BEDs (diff = mu1 - mu2 = exposed - control)
-save_bed(res_zyg$dml, "../output/10-diff-methyl-DSS/zygote_DML.bed", "diff")
-save_bed(res_lar$dml, "../output/10-diff-methyl-DSS/larvae_DML.bed", "diff")
+save_bed(res_zyg$dml, file.path("../output/06.3-differential-methylation-DSS", "zygote_DML.bed"), "diff")
+save_bed(res_lar$dml, file.path("../output/06.3-differential-methylation-DSS", "larvae_DML.bed"), "diff")
 
 # Region-level BEDs (diff.Methy is exposed - control at the region level)
-save_bed(res_zyg$dmr, "../output/10-diff-methyl-DSS/zygote_DMR.bed", "diff.Methy")
-save_bed(res_lar$dmr, "../output/10-diff-methyl-DSS/larvae_DMR.bed", "diff.Methy")
+save_bed(res_zyg$dmr, file.path("../output/06.3-differential-methylation-DSS", "zygote_DMR.bed"), "diff.Methy")
+save_bed(res_lar$dmr, file.path("../output/06.3-differential-methylation-DSS", "larvae_DMR.bed"), "diff.Methy")
 ```
 
-## 7.1 Directional concordance with parental gamete DMLs
+## 6.1 Directional concordance with parental gamete DMLs
 
 `07.2` only tested *positional* overlap, but we’re also interested in
 directional agreement (hyper/hypo).
@@ -514,121 +444,48 @@ As a priliminary check for shared signal, read in the parental beds
 offspring DMLs on `chr` + `pos`, and compare the sign of the difference.
 
 ``` r
-zyg_dmls <- read_tsv("../output/10-diff-methyl-DSS/zygote_DML.bed",
-                  col_names = c("chr", "start", "end", "zyg_diff"))
-```
+offspring <- res_zyg$dml |> transmute(chr, pos, off_diff = diff)
 
-    ## Rows: 7287 Columns: 4
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: "\t"
-    ## chr (1): chr
-    ## dbl (3): start, end, zyg_diff
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-lar_dmls <- read_tsv("../output/10-diff-methyl-DSS/larvae_DML.bed",
-                  col_names = c("chr", "start", "end", "lar_diff"))
-```
-
-    ## Rows: 5330 Columns: 4
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: "\t"
-    ## chr (1): chr
-    ## dbl (3): start, end, lar_diff
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
 sperm <- read_tsv("../data/adult_male_dml.bed",
-                  col_names = c("chr", "start", "end", "strand", "par_diff")) %>%
-  transmute(chr, start, end = end - 1, par_diff = par_diff/100)
-```
+                  col_names = c("chr", "start", "end", "strand", "par_diff"),
+                  col_types = "ciicd") |>
+  transmute(chr, pos = start + 1L, par_diff)       # BED is 0-based; +1 to match 1-based pos
 
-    ## Rows: 4175 Columns: 5
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: "\t"
-    ## chr (2): chr, strand
-    ## dbl (3): start, end, par_diff
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+shared <- inner_join(offspring, sperm, by = c("chr", "pos")) |>
+  mutate(concordant = sign(off_diff) == sign(par_diff))
 
-``` r
-egg <- read_tsv("../data/adult_female_dml.bed",
-                  col_names = c("chr", "start", "end", "strand", "par_diff")) %>%
-  transmute(chr, start, end = end - 1, par_diff = par_diff/100)
-```
-
-    ## Rows: 128 Columns: 5
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: "\t"
-    ## chr (2): chr, strand
-    ## dbl (3): start, end, par_diff
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-shared_zyg_egg <- inner_join(zyg_dmls, egg, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(zyg_diff) == sign(par_diff))
-
-shared_lar_egg<- inner_join(lar_dmls, egg, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(lar_diff) == sign(par_diff))
-
-summarise(shared_zyg_egg, n_shared = n(), n_concordant = sum(concordant),
+summarise(shared, n_shared = n(), n_concordant = sum(concordant),
           pct_concordant = mean(concordant) * 100)
 ```
 
-    ## # A tibble: 1 x 3
     ##   n_shared n_concordant pct_concordant
-    ##      <int>        <int>          <dbl>
-    ## 1        1            1            100
-
-``` r
-summarise(shared_lar_egg, n_shared = n(), n_concordant = sum(concordant),
-          pct_concordant = mean(concordant) * 100)
-```
-
-    ## # A tibble: 1 x 3
-    ##   n_shared n_concordant pct_concordant
-    ##      <int>        <int>          <dbl>
-    ## 1        2            2            100
-
-``` r
-shared_zyg_sperm <- inner_join(zyg_dmls, sperm, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(zyg_diff) == sign(par_diff))
-
-shared_lar_sperm <- inner_join(lar_dmls, sperm, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(lar_diff) == sign(par_diff))
-
-summarise(shared_zyg_sperm, n_shared = n(), n_concordant = sum(concordant),
-          pct_concordant = mean(concordant) * 100)
-```
-
-    ## # A tibble: 1 x 3
-    ##   n_shared n_concordant pct_concordant
-    ##      <int>        <int>          <dbl>
     ## 1       86           86            100
 
 ``` r
-summarise(shared_lar_sperm, n_shared = n(), n_concordant = sum(concordant),
+# Enrichment vs. chance: is n_shared more than expected given the tested background?
+# tested   <- nrow(BSobj)                          # universe of tested CpGs
+# n_off    <- nrow(offspring); n_par <- nrow(sperm); k <- nrow(shared)
+# phyper(k - 1, n_par, tested - n_par, n_off, lower.tail = FALSE)
+```
+
+``` r
+offspring <- res_lar$dml |> transmute(chr, pos, off_diff = diff)
+
+shared <- inner_join(offspring, sperm, by = c("chr", "pos")) |>
+  mutate(concordant = sign(off_diff) == sign(par_diff))
+
+summarise(shared, n_shared = n(), n_concordant = sum(concordant),
           pct_concordant = mean(concordant) * 100)
 ```
 
-    ## # A tibble: 1 x 3
     ##   n_shared n_concordant pct_concordant
-    ##      <int>        <int>          <dbl>
-    ## 1       74           73           98.6
+    ## 1       74           73       98.64865
 
 ``` r
-write_tsv(dplyr::select(shared_zyg_egg, -concordant), "../output/10-diff-methyl-DSS/shared_zygote_egg_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_egg, -concordant), "../output/10-diff-methyl-DSS/shared_larvae_egg_DML.bed", col_names=TRUE)
-
-write_tsv(dplyr::select(shared_zyg_sperm, -concordant), "../output/10-diff-methyl-DSS/shared_zygote_sperm_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_sperm, -concordant), "../output/10-diff-methyl-DSS/shared_larvae_sperm_DML.bed", col_names=TRUE)
+# Enrichment vs. chance: is n_shared more than expected given the tested background?
+# tested   <- nrow(BSobj)                          # universe of tested CpGs
+# n_off    <- nrow(offspring); n_par <- nrow(sperm); k <- nrow(shared)
+# phyper(k - 1, n_par, tested - n_par, n_off, lower.tail = FALSE)
 ```
 
 For a real answer, however, we’d want to (a) re-evaluate parental

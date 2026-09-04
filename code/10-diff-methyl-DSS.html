@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style type="text/css">
+@font-face {
+font-family: octicons-link;
+src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAZwABAAAAAACFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEU0lHAAAGaAAAAAgAAAAIAAAAAUdTVUIAAAZcAAAACgAAAAoAAQAAT1MvMgAAAyQAAABJAAAAYFYEU3RjbWFwAAADcAAAAEUAAACAAJThvmN2dCAAAATkAAAABAAAAAQAAAAAZnBnbQAAA7gAAACyAAABCUM+8IhnYXNwAAAGTAAAABAAAAAQABoAI2dseWYAAAFsAAABPAAAAZwcEq9taGVhZAAAAsgAAAA0AAAANgh4a91oaGVhAAADCAAAABoAAAAkCA8DRGhtdHgAAAL8AAAADAAAAAwGAACfbG9jYQAAAsAAAAAIAAAACABiATBtYXhwAAACqAAAABgAAAAgAA8ASm5hbWUAAAToAAABQgAAAlXu73sOcG9zdAAABiwAAAAeAAAAME3QpOBwcmVwAAAEbAAAAHYAAAB/aFGpk3jaTY6xa8JAGMW/O62BDi0tJLYQincXEypYIiGJjSgHniQ6umTsUEyLm5BV6NDBP8Tpts6F0v+k/0an2i+itHDw3v2+9+DBKTzsJNnWJNTgHEy4BgG3EMI9DCEDOGEXzDADU5hBKMIgNPZqoD3SilVaXZCER3/I7AtxEJLtzzuZfI+VVkprxTlXShWKb3TBecG11rwoNlmmn1P2WYcJczl32etSpKnziC7lQyWe1smVPy/Lt7Kc+0vWY/gAgIIEqAN9we0pwKXreiMasxvabDQMM4riO+qxM2ogwDGOZTXxwxDiycQIcoYFBLj5K3EIaSctAq2kTYiw+ymhce7vwM9jSqO8JyVd5RH9gyTt2+J/yUmYlIR0s04n6+7Vm1ozezUeLEaUjhaDSuXHwVRgvLJn1tQ7xiuVv/ocTRF42mNgZGBgYGbwZOBiAAFGJBIMAAizAFoAAABiAGIAznjaY2BkYGAA4in8zwXi+W2+MjCzMIDApSwvXzC97Z4Ig8N/BxYGZgcgl52BCSQKAA3jCV8CAABfAAAAAAQAAEB42mNgZGBg4f3vACQZQABIMjKgAmYAKEgBXgAAeNpjYGY6wTiBgZWBg2kmUxoDA4MPhGZMYzBi1AHygVLYQUCaawqDA4PChxhmh/8ODDEsvAwHgMKMIDnGL0x7gJQCAwMAJd4MFwAAAHjaY2BgYGaA4DAGRgYQkAHyGMF8NgYrIM3JIAGVYYDT+AEjAwuDFpBmA9KMDEwMCh9i/v8H8sH0/4dQc1iAmAkALaUKLgAAAHjaTY9LDsIgEIbtgqHUPpDi3gPoBVyRTmTddOmqTXThEXqrob2gQ1FjwpDvfwCBdmdXC5AVKFu3e5MfNFJ29KTQT48Ob9/lqYwOGZxeUelN2U2R6+cArgtCJpauW7UQBqnFkUsjAY/kOU1cP+DAgvxwn1chZDwUbd6CFimGXwzwF6tPbFIcjEl+vvmM/byA48e6tWrKArm4ZJlCbdsrxksL1AwWn/yBSJKpYbq8AXaaTb8AAHja28jAwOC00ZrBeQNDQOWO//sdBBgYGRiYWYAEELEwMTE4uzo5Zzo5b2BxdnFOcALxNjA6b2ByTswC8jYwg0VlNuoCTWAMqNzMzsoK1rEhNqByEyerg5PMJlYuVueETKcd/89uBpnpvIEVomeHLoMsAAe1Id4AAAAAAAB42oWQT07CQBTGv0JBhagk7HQzKxca2sJCE1hDt4QF+9JOS0nbaaYDCQfwCJ7Au3AHj+LO13FMmm6cl7785vven0kBjHCBhfpYuNa5Ph1c0e2Xu3jEvWG7UdPDLZ4N92nOm+EBXuAbHmIMSRMs+4aUEd4Nd3CHD8NdvOLTsA2GL8M9PODbcL+hD7C1xoaHeLJSEao0FEW14ckxC+TU8TxvsY6X0eLPmRhry2WVioLpkrbp84LLQPGI7c6sOiUzpWIWS5GzlSgUzzLBSikOPFTOXqly7rqx0Z1Q5BAIoZBSFihQYQOOBEdkCOgXTOHA07HAGjGWiIjaPZNW13/+lm6S9FT7rLHFJ6fQbkATOG1j2OFMucKJJsxIVfQORl+9Jyda6Sl1dUYhSCm1dyClfoeDve4qMYdLEbfqHf3O/AdDumsjAAB42mNgYoAAZQYjBmyAGYQZmdhL8zLdDEydARfoAqIAAAABAAMABwAKABMAB///AA8AAQAAAAAAAAAAAAAAAAABAAAAAA==) format('woff');
+}
+body {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+color: #333;
+font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+font-size: 16px;
+line-height: 1.6;
+word-wrap: break-word;
+}
+a {
+background-color: transparent;
+}
+a:active,
+a:hover {
+outline: 0;
+}
+strong {
+font-weight: bold;
+}
+h1 {
+font-size: 2em;
+margin: 0.67em 0;
+}
+img {
+border: 0;
+}
+hr {
+box-sizing: content-box;
+height: 0;
+}
+pre {
+overflow: auto;
+}
+code,
+kbd,
+pre {
+font-family: monospace, monospace;
+font-size: 1em;
+}
+input {
+color: inherit;
+font: inherit;
+margin: 0;
+}
+html input[disabled] {
+cursor: default;
+}
+input {
+line-height: normal;
+}
+input[type="checkbox"] {
+box-sizing: border-box;
+padding: 0;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+td,
+th {
+padding: 0;
+}
+* {
+box-sizing: border-box;
+}
+input {
+font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+a {
+color: #4078c0;
+text-decoration: none;
+}
+a:hover,
+a:active {
+text-decoration: underline;
+}
+hr {
+height: 0;
+margin: 15px 0;
+overflow: hidden;
+background: transparent;
+border: 0;
+border-bottom: 1px solid #ddd;
+}
+hr:before {
+display: table;
+content: "";
+}
+hr:after {
+display: table;
+clear: both;
+content: "";
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 15px;
+margin-bottom: 15px;
+line-height: 1.1;
+}
+h1 {
+font-size: 30px;
+}
+h2 {
+font-size: 21px;
+}
+h3 {
+font-size: 16px;
+}
+h4 {
+font-size: 14px;
+}
+h5 {
+font-size: 12px;
+}
+h6 {
+font-size: 11px;
+}
+blockquote {
+margin: 0;
+}
+ul,
+ol {
+padding: 0;
+margin-top: 0;
+margin-bottom: 0;
+}
+ol ol,
+ul ol {
+list-style-type: lower-roman;
+}
+ul ul ol,
+ul ol ol,
+ol ul ol,
+ol ol ol {
+list-style-type: lower-alpha;
+}
+dd {
+margin-left: 0;
+}
+code {
+font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+font-size: 12px;
+}
+pre {
+margin-top: 0;
+margin-bottom: 0;
+font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.select::-ms-expand {
+opacity: 0;
+}
+.octicon {
+font: normal normal normal 16px/1 octicons-link;
+display: inline-block;
+text-decoration: none;
+text-rendering: auto;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.octicon-link:before {
+content: '\f05c';
+}
+.markdown-body:before {
+display: table;
+content: "";
+}
+.markdown-body:after {
+display: table;
+clear: both;
+content: "";
+}
+.markdown-body>*:first-child {
+margin-top: 0 !important;
+}
+.markdown-body>*:last-child {
+margin-bottom: 0 !important;
+}
+a:not([href]) {
+color: inherit;
+text-decoration: none;
+}
+.anchor {
+display: inline-block;
+padding-right: 2px;
+margin-left: -18px;
+}
+.anchor:focus {
+outline: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 1em;
+margin-bottom: 16px;
+font-weight: bold;
+line-height: 1.4;
+}
+h1 .octicon-link,
+h2 .octicon-link,
+h3 .octicon-link,
+h4 .octicon-link,
+h5 .octicon-link,
+h6 .octicon-link {
+color: #000;
+vertical-align: middle;
+visibility: hidden;
+}
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor,
+h5:hover .anchor,
+h6:hover .anchor {
+text-decoration: none;
+}
+h1:hover .anchor .octicon-link,
+h2:hover .anchor .octicon-link,
+h3:hover .anchor .octicon-link,
+h4:hover .anchor .octicon-link,
+h5:hover .anchor .octicon-link,
+h6:hover .anchor .octicon-link {
+visibility: visible;
+}
+h1 {
+padding-bottom: 0.3em;
+font-size: 2.25em;
+line-height: 1.2;
+border-bottom: 1px solid #eee;
+}
+h1 .anchor {
+line-height: 1;
+}
+h2 {
+padding-bottom: 0.3em;
+font-size: 1.75em;
+line-height: 1.225;
+border-bottom: 1px solid #eee;
+}
+h2 .anchor {
+line-height: 1;
+}
+h3 {
+font-size: 1.5em;
+line-height: 1.43;
+}
+h3 .anchor {
+line-height: 1.2;
+}
+h4 {
+font-size: 1.25em;
+}
+h4 .anchor {
+line-height: 1.2;
+}
+h5 {
+font-size: 1em;
+}
+h5 .anchor {
+line-height: 1.1;
+}
+h6 {
+font-size: 1em;
+color: #777;
+}
+h6 .anchor {
+line-height: 1.1;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre {
+margin-top: 0;
+margin-bottom: 16px;
+}
+hr {
+height: 4px;
+padding: 0;
+margin: 16px 0;
+background-color: #e7e7e7;
+border: 0 none;
+}
+ul,
+ol {
+padding-left: 2em;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+margin-top: 0;
+margin-bottom: 0;
+}
+li>p {
+margin-top: 16px;
+}
+dl {
+padding: 0;
+}
+dl dt {
+padding: 0;
+margin-top: 16px;
+font-size: 1em;
+font-style: italic;
+font-weight: bold;
+}
+dl dd {
+padding: 0 16px;
+margin-bottom: 16px;
+}
+blockquote {
+padding: 0 15px;
+color: #777;
+border-left: 4px solid #ddd;
+}
+blockquote>:first-child {
+margin-top: 0;
+}
+blockquote>:last-child {
+margin-bottom: 0;
+}
+table {
+display: block;
+width: 100%;
+overflow: auto;
+word-break: normal;
+word-break: keep-all;
+}
+table th {
+font-weight: bold;
+}
+table th,
+table td {
+padding: 6px 13px;
+border: 1px solid #ddd;
+}
+table tr {
+background-color: #fff;
+border-top: 1px solid #ccc;
+}
+table tr:nth-child(2n) {
+background-color: #f8f8f8;
+}
+img {
+max-width: 100%;
+box-sizing: content-box;
+background-color: #fff;
+}
+code {
+padding: 0;
+padding-top: 0.2em;
+padding-bottom: 0.2em;
+margin: 0;
+font-size: 85%;
+background-color: rgba(0,0,0,0.04);
+border-radius: 3px;
+}
+code:before,
+code:after {
+letter-spacing: -0.2em;
+content: "\00a0";
+}
+pre>code {
+padding: 0;
+margin: 0;
+font-size: 100%;
+word-break: normal;
+white-space: pre;
+background: transparent;
+border: 0;
+}
+.highlight {
+margin-bottom: 16px;
+}
+.highlight pre,
+pre {
+padding: 16px;
+overflow: auto;
+font-size: 85%;
+line-height: 1.45;
+background-color: #f7f7f7;
+border-radius: 3px;
+}
+.highlight pre {
+margin-bottom: 0;
+word-break: normal;
+}
+pre {
+word-wrap: normal;
+}
+pre code {
+display: inline;
+max-width: initial;
+padding: 0;
+margin: 0;
+overflow: initial;
+line-height: inherit;
+word-wrap: normal;
+background-color: transparent;
+border: 0;
+}
+pre code:before,
+pre code:after {
+content: normal;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font-size: 11px;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.pl-c {
+color: #969896;
+}
+.pl-c1,
+.pl-s .pl-v {
+color: #0086b3;
+}
+.pl-e,
+.pl-en {
+color: #795da3;
+}
+.pl-s .pl-s1,
+.pl-smi {
+color: #333;
+}
+.pl-ent {
+color: #63a35c;
+}
+.pl-k {
+color: #a71d5d;
+}
+.pl-pds,
+.pl-s,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sra,
+.pl-sr .pl-sre {
+color: #183691;
+}
+.pl-v {
+color: #ed6a43;
+}
+.pl-id {
+color: #b52a1d;
+}
+.pl-ii {
+background-color: #b52a1d;
+color: #f8f8f8;
+}
+.pl-sr .pl-cce {
+color: #63a35c;
+font-weight: bold;
+}
+.pl-ml {
+color: #693a17;
+}
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+color: #1d3e81;
+font-weight: bold;
+}
+.pl-mq {
+color: #008080;
+}
+.pl-mi {
+color: #333;
+font-style: italic;
+}
+.pl-mb {
+color: #333;
+font-weight: bold;
+}
+.pl-md {
+background-color: #ffecec;
+color: #bd2c00;
+}
+.pl-mi1 {
+background-color: #eaffea;
+color: #55a532;
+}
+.pl-mdr {
+color: #795da3;
+font-weight: bold;
+}
+.pl-mo {
+color: #1d3e81;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.task-list-item {
+list-style-type: none;
+}
+.task-list-item+.task-list-item {
+margin-top: 3px;
+}
+.task-list-item input {
+margin: 0 0.35em 0.25em -1.6em;
+vertical-align: middle;
+}
+:checked+.radio-label {
+z-index: 1;
+position: relative;
+border-color: #4078c0;
+}
+.sourceLine {
+display: inline-block;
+}
+code .kw { color: #000000; }
+code .dt { color: #ed6a43; }
+code .dv { color: #009999; }
+code .bn { color: #009999; }
+code .fl { color: #009999; }
+code .ch { color: #009999; }
+code .st { color: #183691; }
+code .co { color: #969896; }
+code .ot { color: #0086b3; }
+code .al { color: #a61717; }
+code .fu { color: #63a35c; }
+code .er { color: #a61717; background-color: #e3d2d2; }
+code .wa { color: #000000; }
+code .cn { color: #008080; }
+code .sc { color: #008080; }
+code .vs { color: #183691; }
+code .ss { color: #183691; }
+code .im { color: #000000; }
+code .va {color: #008080; }
+code .cf { color: #000000; }
+code .op { color: #000000; }
+code .bu { color: #000000; }
+code .ex { color: #000000; }
+code .pp { color: #999999; }
+code .at { color: #008080; }
+code .do { color: #969896; }
+code .an { color: #008080; }
+code .cv { color: #008080; }
+code .in { color: #008080; }
+</style>
+<style>
+body {
+box-sizing: border-box;
+min-width: 200px;
+max-width: 980px;
+margin: 0 auto;
+padding: 45px;
+padding-top: 0px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="id_10-diff-methyl-dss">10-diff-methyl-DSS</h1>
+<p>Kathleen Durkin 2026-09-04</p>
+<ul>
+<li><a href="#id_1-setup">1 Setup</a></li>
+<li><a href="#id_2-download-methylation-calls">2 Download methylation
+calls</a></li>
+<li><a href="#id_3-read-bismark-coverage-into-a-bsseq-object">3 Read
+Bismark coverage into a BSseq object</a></li>
+<li><a href="#id_4-multi-factor-model-design-level-tests">4 Multi-factor
+model (design-level tests)</a>
+<ul>
+<li><a href="#id_41-parental-treatment-effect">4.1 Parental treatment
+effect</a></li>
+<li><a href="#id_42-stage-dependence-of-the-treatment-effect">4.2
+Stage-dependence of the treatment effect</a></li>
+</ul></li>
+<li><a href="#id_5-save-outputs">5 Save outputs</a></li>
+<li><a href="#id_6-two-group-smoothed-test-within-each-stage">6
+Two-group smoothed test within each stage</a></li>
+<li><a href="#id_7-save-outputs">7 Save outputs</a>
+<ul>
+<li><a href="#id_71-directional-concordance-with-parental-gamete-dmls">7.1
+Directional concordance with parental gamete DMLs</a></li>
+</ul></li>
+</ul>
+<p>Differential methylation analysis using the <code>DSS</code> package
+(Dispersion Shrinkage for Sequencing data)</p>
+<p>Why <code>DSS</code> here:</p>
+<ul>
+<li>The experimental design has <strong>two crossed factors</strong>
+(parental treatment: Control/Exposed; life stage: Zygote/Larvae).
+<code>DSS</code> allows treatment, stage, and their interaction can be
+modelled directly.</li>
+<li><code>DSS</code>/<code>bsseq</code> retains the
+<strong>union</strong> of CpG positions and tolerate missing / low
+coverage,rather than requiring coverage in <em>every</em> sample the way
+<code>methylKit::unite()</code> does.</li>
+</ul>
+<p>Caveats to keep in mind:</p>
+<ul>
+<li><code>DMLtest.multiFactor()</code> does <strong>not</strong>
+spatially smooth (smoothing is only in the two-group
+<code>DMLtest()</code>). Below we use the multi-factor fit for the
+design-level tests, and a separate smoothed two-group
+<code>DMLtest()</code> within each stage to mirror the <code>06.2</code>
+split.</li>
+<li><code>DSS</code> aggregates DMRs from per-site statistics and gives
+no region-level FDR</li>
+<li>Only fixed-effect covariates are supported (no family/cross random
+effects)</li>
+</ul>
+<p>Inputs: Bismark coverage files
+<code>[].deduplicated.bismark.cov.gz</code>, the same ones used in
+<code>06.x</code> (stored under
+<code>../data/bismark-methyl-extraction/</code>).</p>
+<h1 id="id_1-setup">1 Setup</h1>
+<p>I ended up needing to run this code from using a .sh script from the
+terminal for two reasons. First, Klone doesn’t seem to have the DSS
+package available, and I don’t seem to have the requisite permissions to
+install it, so I need to run all of this code within a conda
+environment. Second, some of these runs are so comuptationally intensive
+that I need &gt;200G of memory. I therefore needed to request a node
+with a really high amount of memory on which to run this code.</p>
+<p>Below is a copy of the simple <code>.sh</code> script I’m using for
+the run. From a Klone login node, I can just use the <code>sbatch</code>
+command to run this <code>.sh</code> script, which will request a
+suffiently powered node, open a conda environment, and run all R code in
+this <code>.Rmd</code> file.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#SBATCH --account=srlab</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#SBATCH --partition=cpu-g2-mem2x</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=8</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#SBATCH --mem=350G</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#SBATCH --time=1-00:00:00</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#SBATCH --output=dss_%j.out</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#SBATCH --error=dss_%j.err</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#SBATCH --chdir=/gscratch/srlab/kdurkin1/kathleen-coral/project/code</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="ex">apptainer</span> exec <span class="at">--bind</span> /gscratch:/gscratch <span class="dt">\</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a> /gscratch/srlab/kdurkin1/srlab-R4.4-bioinformatics-container-703094b.sif <span class="dt">\</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  bash <span class="at">-c</span> <span class="st">&#39;source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh &amp;&amp; conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss &amp;&amp; Rscript -e &quot;rmarkdown::render(\&quot;10.Rmd\&quot;)&quot;&#39;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Install if needed:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># if (!require(&quot;BiocManager&quot;, quietly = TRUE)) install.packages(&quot;BiocManager&quot;)</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># BiocManager::install(c(&quot;DSS&quot;, &quot;bsseq&quot;))</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">library</span>(DSS)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">library</span>(bsseq)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
+<h1 id="id_2-download-methylation-calls">2 Download methylation
+calls</h1>
+<p>(if necessary)</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Run wget to retrieve FastQs and MD5 files</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co"># Note: the --no-clobber command will skip re-downloading any files that are already present in the output directory</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">wget</span> <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>--directory-prefix ../data/bismark-methyl-extraction <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>--recursive <span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>--no-check-certificate <span class="dt">\</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>--continue <span class="dt">\</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>--cut-dirs 4 <span class="dt">\</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>--no-host-directories <span class="dt">\</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>--no-parent <span class="dt">\</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>--quiet <span class="dt">\</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>--no-clobber <span class="dt">\</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>--accept=<span class="st">&quot;*.deduplicated.bismark.cov.gz,checksums.md5&quot;</span> https://gannet.fish.washington.edu/gitrepos/ceasmallr/output/02.20-bismark-methylation-extraction/</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="bu">cd</span> ../data/bismark-methyl-extraction/</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;How many methylation calling files were downloaded?&quot;</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">ls</span> <span class="pp">*</span>.deduplicated.bismark.cov.gz <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Check file checksums:&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">grep</span> <span class="st">&#39;.deduplicated.bismark.cov.gz&#39;</span> checksums.md5 <span class="kw">|</span> <span class="fu">md5sum</span> <span class="at">-c</span> <span class="at">-</span></span></code></pre></div>
+<p>We should have N=32 (n=15 ControlxControl crosses, n=17
+ExposedxExposed crosses)</p>
+<h1 id="id_3-read-bismark-coverage-into-a-bsseq-object">3 Read Bismark
+coverage into a BSseq object</h1>
+<p>Bismark <code>.cov</code> columns (no header):
+<code>chr  start  end  meth%  count_methylated  count_unmethylated</code>.
+For <code>DSS</code> we need, per sample, a df with columns
+<code>chr</code>, <code>pos</code>, <code>N</code> (total coverage), and
+<code>X</code> (methylated count).</p>
+<p>(Positions are 1-based in both Bismark <code>.cov</code> and
+<code>bsseq</code>, so no offset is needed)</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>file.list  <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="st">&quot;../data/bismark-methyl-extraction&quot;</span>, <span class="at">pattern =</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">.bismark</span><span class="sc">\\</span><span class="st">.cov</span><span class="sc">\\</span><span class="st">.gz$&quot;</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># As in 06.2, drop the low-yield libraries (&lt;100M Cs)</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># BUT, could keep all samples and let DSS handle the coverage differences -- come back to later.</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>drop <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;CF01-CM01-Zygote&quot;</span>, <span class="st">&quot;CF08-CM04-Larvae&quot;</span>, <span class="st">&quot;CF08-CM05-Larvae&quot;</span>, <span class="st">&quot;EF04-EM04-Zygote&quot;</span>, <span class="st">&quot;EF05-EM05-Zygote&quot;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>file.list <span class="ot">&lt;-</span> file.list[<span class="sc">!</span><span class="fu">str_detect</span>(<span class="fu">basename</span>(file.list), <span class="fu">str_c</span>(drop, <span class="at">collapse =</span> <span class="st">&quot;|&quot;</span>))]</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># format sample IDs</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>sample.ids <span class="ot">&lt;-</span> <span class="fu">basename</span>(file.list) <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="fu">str_replace</span>(<span class="st">&quot;_R1_001</span><span class="sc">\\</span><span class="st">.fastp-trim_bismark_bt2_pe</span><span class="sc">\\</span><span class="st">.deduplicated</span><span class="sc">\\</span><span class="st">.bismark</span><span class="sc">\\</span><span class="st">.cov</span><span class="sc">\\</span><span class="st">.gz$&quot;</span>, <span class="st">&quot;&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">str_replace</span>(<span class="st">&quot;_R1_001</span><span class="sc">\\</span><span class="st">.fastp-trim</span><span class="sc">\\</span><span class="st">.REPAIRED_bismark_bt2_pe</span><span class="sc">\\</span><span class="st">.deduplicated</span><span class="sc">\\</span><span class="st">.bismark</span><span class="sc">\\</span><span class="st">.cov</span><span class="sc">\\</span><span class="st">.gz$&quot;</span>, <span class="st">&quot;.REP&quot;</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># Grab treatment and lifestage info from Sample IDs</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#   first letter of the cross code = parental treatment (C = control, E = exposed)</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#   stage encoded in the ID string (Zygote / Larvae)</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>meta <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  <span class="at">sample    =</span> sample.ids,</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  <span class="at">file      =</span> file.list,</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>  <span class="at">treatment =</span> <span class="fu">case_when</span>(<span class="fu">str_starts</span>(sample.ids, <span class="st">&quot;E&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Exposed&quot;</span>,</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>                        <span class="fu">str_starts</span>(sample.ids, <span class="st">&quot;C&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Control&quot;</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>                        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span>),</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>  <span class="at">stage     =</span> <span class="fu">case_when</span>(<span class="fu">str_detect</span>(sample.ids, <span class="st">&quot;Zygote&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Zygote&quot;</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>                        <span class="fu">str_detect</span>(sample.ids, <span class="st">&quot;Larvae&quot;</span>) <span class="sc">~</span> <span class="st">&quot;Larvae&quot;</span>,</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>                        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_character_</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>  <span class="co"># reference levels: Control (so the coefficient = effect of exposure) and Zygote (earlier stage)</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Control&quot;</span>, <span class="st">&quot;Exposed&quot;</span>)),</span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>         <span class="at">stage     =</span> <span class="fu">factor</span>(stage,     <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;Zygote&quot;</span>,  <span class="st">&quot;Larvae&quot;</span>)))</span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">count</span>(meta, treatment, stage))</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th align="left">treatment</th>
+<th align="left">stage</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Control</td>
+<td align="left">Zygote</td>
+<td align="right">7</td>
+</tr>
+<tr>
+<td align="left">Control</td>
+<td align="left">Larvae</td>
+<td align="right">5</td>
+</tr>
+<tr>
+<td align="left">Exposed</td>
+<td align="left">Zygote</td>
+<td align="right">4</td>
+</tr>
+<tr>
+<td align="left">Exposed</td>
+<td align="left">Larvae</td>
+<td align="right">11</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>colData <span class="ot">&lt;-</span> <span class="fu">DataFrame</span>(<span class="at">treatment =</span> meta<span class="sc">$</span>treatment,</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>                     <span class="at">stage     =</span> meta<span class="sc">$</span>stage,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                     <span class="at">row.names =</span> meta<span class="sc">$</span>sample)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>BSobj <span class="ot">&lt;-</span> <span class="fu">read.bismark</span>(<span class="at">files          =</span> meta<span class="sc">$</span>file,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>                      <span class="at">colData        =</span> colData,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>                      <span class="at">rmZeroCov      =</span> <span class="cn">TRUE</span>,          <span class="co"># drops positions covered in 0 samples</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>                      <span class="at">strandCollapse =</span> <span class="cn">FALSE</span>,         <span class="co"># .cov isn&#39;t a cytosine report; leave off</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>                      <span class="at">BPPARAM        =</span> <span class="fu">MulticoreParam</span>(<span class="at">workers =</span> <span class="dv">12</span>, <span class="at">progressbar =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>                      <span class="at">verbose        =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## [read.bismark] Parsing files and constructing valid loci ...
+
+##   |                                                                              |                                                                      |   0%  |                                                                              |===                                                                   |   4%  |                                                                              |=====                                                                 |   8%  |                                                                              |========                                                              |  12%  |                                                                              |===========                                                           |  15%  |                                                                              |=============                                                         |  19%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |======================                                                |  31%  |                                                                              |========================                                              |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |==============================                                        |  42%  |                                                                              |================================                                      |  46%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================                                |  54%  |                                                                              |========================================                              |  58%  |                                                                              |===========================================                           |  62%  |                                                                              |==============================================                        |  65%  |                                                                              |================================================                      |  69%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |=========================================================             |  81%  |                                                                              |===========================================================           |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |=================================================================     |  92%  |                                                                              |===================================================================   |  96%  |                                                                              |======================================================================| 100%
+
+## Done in 55.1 secs
+
+## [read.bismark] Parsing files and constructing &#39;M&#39; and &#39;Cov&#39; matrices ...
+
+##   |                                                                              |                                                                      |   0%  |                                                                              |===                                                                   |   4%  |                                                                              |=====                                                                 |   7%  |                                                                              |========                                                              |  11%  |                                                                              |==========                                                            |  15%  |                                                                              |=============                                                         |  19%  |                                                                              |================                                                      |  22%  |                                                                              |==================                                                    |  26%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |====================================================                  |  74%  |                                                                              |======================================================                |  78%  |                                                                              |=========================================================             |  81%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  89%  |                                                                              |=================================================================     |  93%  |                                                                              |===================================================================   |  96%  |                                                                              |======================================================================| 100%
+
+## Done in 27.2 secs
+
+## [read.bismark] Constructing BSseq object ...</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>BSobj    <span class="co"># positions are the UNION across samples; missing positions get N = 0</span></span></code></pre></div>
+<pre><code>## An object of type &#39;BSseq&#39; with
+##   31450950 methylation loci
+##   27 samples
+## has not been smoothed
+## All assays are in-memory</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># DSS tolerates missingness</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co"># For now, require non-zero coverage in at least half the samples of each treatment x stage cell to reduce noise</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co"># (MAY WANT TO ADJUST LATER)</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>cov_mat <span class="ot">&lt;-</span> <span class="fu">getCoverage</span>(BSobj, <span class="at">type =</span> <span class="st">&quot;Cov&quot;</span>)           <span class="co"># loci x samples</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>cells   <span class="ot">&lt;-</span> <span class="fu">interaction</span>(meta<span class="sc">$</span>treatment, meta<span class="sc">$</span>stage, <span class="at">drop =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>keep <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="st">`</span><span class="at">&amp;</span><span class="st">`</span>, <span class="fu">lapply</span>(<span class="fu">levels</span>(cells), <span class="cf">function</span>(cl) {</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">which</span>(cells <span class="sc">==</span> cl)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">rowSums</span>(cov_mat[, idx, <span class="at">drop =</span> <span class="cn">FALSE</span>] <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">&gt;=</span> <span class="fu">ceiling</span>(<span class="fu">length</span>(idx) <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>}))</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>BSobj <span class="ot">&lt;-</span> BSobj[keep, ]</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Loci retained after coverage filter:&quot;</span>, <span class="fu">nrow</span>(BSobj), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Loci retained after coverage filter: 7594836</code></pre>
+<p>EDIT: All of the downstream model fitting calls are <em>super</em>
+intensive and take forever to run. Since I have to run this from
+Rscript, and thus cannot easily retain R objects between runs, this is
+making script troubleshooting super time-intensive and annoying. To
+facilitate troubleshooting, I’m going to add a test run option that will
+randomly subsample a tiny fraction of the data to proceed with:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Keeps all samples but randomly thins loci genome-wide</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co"># set test_run to FALSE for full-data runs</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>test_run  <span class="ot">&lt;-</span> <span class="cn">FALSE</span> </span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>test_frac <span class="ot">&lt;-</span> <span class="fl">0.02</span>      <span class="co"># keep 2% of loci</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="cf">if</span> (test_run) {</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  idx   <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">sample</span>(<span class="fu">nrow</span>(BSobj), <span class="at">size =</span> <span class="fu">floor</span>(<span class="fu">nrow</span>(BSobj) <span class="sc">*</span> test_frac)))</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>  BSobj <span class="ot">&lt;-</span> BSobj[idx, ]</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;TEST RUN — loci subsampled to:&quot;</span>, <span class="fu">nrow</span>(BSobj), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>}</span></code></pre></div>
+<h1 id="id_4-multi-factor-model-design-level-tests">4 Multi-factor model
+(design-level tests)</h1>
+<p>Fit an interaction model for tests of <em>stage-dependence</em> (does
+effect of parental exposure differ between the life stages)</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">treatment =</span> meta<span class="sc">$</span>treatment, <span class="at">stage =</span> meta<span class="sc">$</span>stage)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># Interaction model: does the parental-treatment effect differ by stage?</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>fit_int <span class="ot">&lt;-</span> <span class="fu">DMLfit.multiFactor</span>(BSobj, <span class="at">design =</span> design,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>                              <span class="at">formula =</span> <span class="sc">~</span> treatment <span class="sc">+</span> stage <span class="sc">+</span> treatment<span class="sc">:</span>stage)</span></code></pre></div>
+<pre><code>## Fitting DML model for CpG site: 100000 , 200000 , 300000 , 400000 , 500000 , 600000 , 700000 , 800000 , 900000 , 1000000 , 1100000 , 1200000 , 1300000 , 1400000 , 1500000 , 1600000 , 1700000 , 1800000 , 1900000 , 2000000 , 2100000 , 2200000 , 2300000 , 2400000 , 2500000 , 2600000 , 2700000 , 2800000 , 2900000 , 3000000 , 3100000 , 3200000 , 3300000 , 3400000 , 3500000 , 3600000 , 3700000 , 3800000 , 3900000 , 4000000 , 4100000 , 4200000 , 4300000 , 4400000 , 4500000 , 4600000 , 4700000 , 4800000 , 4900000 , 5000000 , 5100000 , 5200000 , 5300000 , 5400000 , 5500000 , 5600000 , 5700000 , 5800000 , 5900000 , 6000000 , 6100000 , 6200000 , 6300000 , 6400000 , 6500000 , 6600000 , 6700000 , 6800000 , 6900000 , 7000000 , 7100000 , 7200000 , 7300000 , 7400000 , 7500000 ,</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Inspect coefficient names so we test the right columns</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">colnames</span>(fit_int<span class="sc">$</span>X)</span></code></pre></div>
+<pre><code>## [1] &quot;(Intercept)&quot;                  &quot;treatmentExposed&quot;            
+## [3] &quot;stageLarvae&quot;                  &quot;treatmentExposed:stageLarvae&quot;</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Expected: &quot;(Intercept)&quot; &quot;treatmentExposed&quot; &quot;stageLarvae&quot; &quot;treatmentExposed:stageLarvae&quot;</span></span></code></pre></div>
+<h2 id="id_41-parental-treatment-effect">4.1 Parental treatment
+effect</h2>
+<p>Fit an additive model (no interaction) to test for signal of parental
+treatment effect while <em>controlling for stage</em>.</p>
+<p>Note that, for a multi-factor analysis, DSS doesn’t seem to rely on a
+threshold of % methylation difference? Just an FDR pval.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>fit_add  <span class="ot">&lt;-</span> <span class="fu">DMLfit.multiFactor</span>(BSobj, <span class="at">design =</span> design, <span class="at">formula =</span> <span class="sc">~</span> treatment <span class="sc">+</span> stage)</span></code></pre></div>
+<pre><code>## Fitting DML model for CpG site: 100000 , 200000 , 300000 , 400000 , 500000 , 600000 , 700000 , 800000 , 900000 , 1000000 , 1100000 , 1200000 , 1300000 , 1400000 , 1500000 , 1600000 , 1700000 , 1800000 , 1900000 , 2000000 , 2100000 , 2200000 , 2300000 , 2400000 , 2500000 , 2600000 , 2700000 , 2800000 , 2900000 , 3000000 , 3100000 , 3200000 , 3300000 , 3400000 , 3500000 , 3600000 , 3700000 , 3800000 , 3900000 , 4000000 , 4100000 , 4200000 , 4300000 , 4400000 , 4500000 , 4600000 , 4700000 , 4800000 , 4900000 , 5000000 , 5100000 , 5200000 , 5300000 , 5400000 , 5500000 , 5600000 , 5700000 , 5800000 , 5900000 , 6000000 , 6100000 , 6200000 , 6300000 , 6400000 , 6500000 , 6600000 , 6700000 , 6800000 , 6900000 , 7000000 , 7100000 , 7200000 , 7300000 , 7400000 , 7500000 ,</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>test_trt <span class="ot">&lt;-</span> <span class="fu">DMLtest.multiFactor</span>(fit_add, <span class="at">coef =</span> <span class="st">&quot;treatmentExposed&quot;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="fu">head</span>(test_trt[<span class="fu">order</span>(test_trt<span class="sc">$</span>pvals), ])</span></code></pre></div>
+<pre><code>##                 chr      pos      stat        pvals         fdrs
+## 3252087 NC_035783.1 47063138 -11.20139 4.014000e-29 3.048567e-22
+## 1613416 NC_035781.1 54566109 -11.07856 1.594096e-28 6.053448e-22
+## 1904940 NC_035782.1 23797484  10.69016 1.131773e-26 2.757798e-20
+## 3252085 NC_035783.1 47063100 -10.66700 1.452460e-26 2.757798e-20
+## 6106198 NC_035787.1 45662859  10.24411 1.257759e-24 1.910495e-18
+## 514989  NC_035780.1 36481455 -10.21824 1.642982e-24 2.079697e-18</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># DMLs = FDR threshold (multiFactor gives per-site fdrs, not a methylKit-style % difference)</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>dml_trt <span class="ot">&lt;-</span> test_trt[<span class="fu">which</span>(test_trt<span class="sc">$</span>fdrs <span class="sc">&lt;</span> <span class="fl">0.05</span>), ]</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Treatment DMLs (FDR &lt; 0.05):&quot;</span>, <span class="fu">nrow</span>(dml_trt), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Treatment DMLs (FDR &lt; 0.05): 8404</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="co"># Regions</span></span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>dmr_trt <span class="ot">&lt;-</span> <span class="fu">callDMR</span>(test_trt, <span class="at">p.threshold =</span> <span class="fl">0.01</span>, <span class="at">minlen =</span> <span class="dv">50</span>, <span class="at">minCG =</span> <span class="dv">3</span>, <span class="at">dis.merge =</span> <span class="dv">100</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Treatment DMRs:&quot;</span>, <span class="fu">nrow</span>(dmr_trt), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Treatment DMRs: 1788</code></pre>
+<h2 id="id_42-stage-dependence-of-the-treatment-effect">4.2
+Stage-dependence of the treatment effect</h2>
+<p>A <em>null</em> interaction at treatment-associated loci = inherited
+signal preserved across stages (H1.2 supported). A <em>significant</em>
+interaction = the effect differs between zygote and larva, i.e. evidence
+of developmental reprogramming.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>test_intx <span class="ot">&lt;-</span> <span class="fu">DMLtest.multiFactor</span>(fit_int, <span class="at">coef =</span> <span class="st">&quot;treatmentExposed:stageLarvae&quot;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="fu">head</span>(test_intx[<span class="fu">order</span>(test_intx<span class="sc">$</span>pvals), ])</span></code></pre></div>
+<pre><code>##                 chr      pos      stat        pvals         fdrs
+## 5454373 NC_035786.1 26848260 -7.041529 1.901412e-12 1.444091e-05
+## 121720  NC_035780.1  8153271 -6.072932 1.255955e-09 4.769388e-03
+## 5959197 NC_035787.1 27908837 -5.810520 6.227925e-09 1.576669e-02
+## 5357534 NC_035786.1 11658552  5.681226 1.337328e-08 2.053254e-02
+## 6957431 NC_035788.1 66167519  5.638656 1.713825e-08 2.053254e-02
+## 4963529 NC_035785.1 16140415  5.636172 1.738718e-08 2.053254e-02</code></pre>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>dml_intx <span class="ot">&lt;-</span> test_intx[<span class="fu">which</span>(test_intx<span class="sc">$</span>fdrs <span class="sc">&lt;</span> <span class="fl">0.05</span>), ]</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Loci with stage-dependent treatment effect (FDR &lt; 0.05):&quot;</span>, <span class="fu">nrow</span>(dml_intx), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Loci with stage-dependent treatment effect (FDR &lt; 0.05): 14</code></pre>
+<h1 id="id_5-save-outputs">5 Save outputs</h1>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>save_bed <span class="ot">&lt;-</span> <span class="cf">function</span>(df, path, score_col) {</span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>  <span class="co"># callDMR() returns NULL when no regions pass; callDML() can return 0 rows.</span></span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>  <span class="co"># Write an empty .bed in that case rather than erroring, so a knit completes.</span></span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(df) <span class="sc">||</span> <span class="fu">nrow</span>(df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a>    <span class="fu">file.create</span>(path)</span>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">&quot;save_bed: no rows for &quot;</span>, <span class="fu">basename</span>(path), <span class="st">&quot; — wrote empty file.&quot;</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">invisible</span>(<span class="cn">NULL</span>))</span>
+<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>  }</span>
+<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a>  <span class="co"># Region tables (callDMR) carry chr/start/end; single-base DML tables</span></span>
+<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a>  <span class="co"># (DMLtest/callDML) carry chr/pos — derive a 0-based, half-open interval.</span></span>
+<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>,<span class="st">&quot;start&quot;</span>,<span class="st">&quot;end&quot;</span>) <span class="sc">%in%</span> <span class="fu">names</span>(df))) {</span>
+<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a>    start <span class="ot">&lt;-</span> df<span class="sc">$</span>start; end <span class="ot">&lt;-</span> df<span class="sc">$</span>end</span>
+<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>,<span class="st">&quot;pos&quot;</span>) <span class="sc">%in%</span> <span class="fu">names</span>(df))) {</span>
+<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a>    start <span class="ot">&lt;-</span> df<span class="sc">$</span>pos <span class="sc">-</span> <span class="dv">1</span><span class="dt">L</span>; end <span class="ot">&lt;-</span> df<span class="sc">$</span>pos</span>
+<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;save_bed: df lacks chr/start/end or chr/pos for &quot;</span>, <span class="fu">basename</span>(path),</span>
+<span id="cb30-17"><a href="#cb30-17" tabindex="-1"></a>         <span class="st">&quot; - columns are: &quot;</span>, <span class="fu">paste</span>(<span class="fu">names</span>(df), <span class="at">collapse=</span><span class="st">&quot;, &quot;</span>))</span>
+<span id="cb30-18"><a href="#cb30-18" tabindex="-1"></a>  }</span>
+<span id="cb30-19"><a href="#cb30-19" tabindex="-1"></a>  score <span class="ot">&lt;-</span> <span class="cf">if</span> (score_col <span class="sc">%in%</span> <span class="fu">names</span>(df)) df[[score_col]] <span class="cf">else</span> <span class="cn">NA_real_</span></span>
+<span id="cb30-20"><a href="#cb30-20" tabindex="-1"></a>  bed <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">chr =</span> df<span class="sc">$</span>chr, <span class="at">start =</span> start, <span class="at">end =</span> end, <span class="at">score =</span> score)</span>
+<span id="cb30-21"><a href="#cb30-21" tabindex="-1"></a>  <span class="fu">write.table</span>(bed, path, <span class="at">quote =</span> <span class="cn">FALSE</span>, <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\t</span><span class="st">&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">col.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb30-22"><a href="#cb30-22" tabindex="-1"></a>}</span>
+<span id="cb30-23"><a href="#cb30-23" tabindex="-1"></a></span>
+<span id="cb30-24"><a href="#cb30-24" tabindex="-1"></a><span class="co"># Site-level tables</span></span>
+<span id="cb30-25"><a href="#cb30-25" tabindex="-1"></a><span class="fu">write_tsv</span>(test_trt,  <span class="fu">file.path</span>(<span class="st">&quot;../output/10-diff-methyl-DSS&quot;</span>, <span class="st">&quot;multifactor_treatment_test.tsv&quot;</span>))</span>
+<span id="cb30-26"><a href="#cb30-26" tabindex="-1"></a><span class="fu">write_tsv</span>(test_intx, <span class="fu">file.path</span>(<span class="st">&quot;../output/10-diff-methyl-DSS&quot;</span>, <span class="st">&quot;multifactor_interaction_test.tsv&quot;</span>))</span>
+<span id="cb30-27"><a href="#cb30-27" tabindex="-1"></a></span>
+<span id="cb30-28"><a href="#cb30-28" tabindex="-1"></a><span class="co"># Region-level BEDs (multifactor DMR uses `areaStat` as region-level test statistic)</span></span>
+<span id="cb30-29"><a href="#cb30-29" tabindex="-1"></a><span class="fu">save_bed</span>(dmr_trt, <span class="fu">file.path</span>(<span class="st">&quot;../output/10-diff-methyl-DSS&quot;</span>, <span class="st">&quot;treatment_DMR.bed&quot;</span>), <span class="st">&quot;areaStat&quot;</span>)</span></code></pre></div>
+<h1 id="id_6-two-group-smoothed-test-within-each-stage">6 Two-group
+smoothed test within each stage</h1>
+<p>Also want to try within-stage tests with DSS. For non-multifactor
+tets, DSS makes use of smoothing and dispersion shrinkage to
+essentiallys “borrow” info across neighboring CpG sites. This cvan be
+useful for handling low-coverage libraries, which is an existing problem
+with the zygot libraries.</p>
+<p>It also produces effect estimates of the same type as
+<code>methylKit</code> (% methylation difference), which could be useful
+for more direct comparisons to the conventions used in Rondon et
+al. 2017 and Venkataraman et al. 2024. It would also be useful for
+questions involving directional concordance (hyper- v
+hypo-methylation)</p>
+<p>WARNING: Both the Zygote and Larvae stage-specific DMLtest() runs are
+<strong>very</strong> memory-intensive. I’ve needed to up the node
+request to ~300G just to successfully complete them, and it takes a
+while to finish.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a>run_stage <span class="ot">&lt;-</span> <span class="cf">function</span>(stage_label) {</span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>  s_idx  <span class="ot">&lt;-</span> <span class="fu">which</span>(meta<span class="sc">$</span>stage <span class="sc">==</span> stage_label)</span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  BS_s   <span class="ot">&lt;-</span> BSobj[, s_idx]</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a>  g_exp  <span class="ot">&lt;-</span> meta<span class="sc">$</span>sample[s_idx][meta<span class="sc">$</span>treatment[s_idx] <span class="sc">==</span> <span class="st">&quot;Exposed&quot;</span>]</span>
+<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>  g_ctrl <span class="ot">&lt;-</span> meta<span class="sc">$</span>sample[s_idx][meta<span class="sc">$</span>treatment[s_idx] <span class="sc">==</span> <span class="st">&quot;Control&quot;</span>]</span>
+<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>  dml <span class="ot">&lt;-</span> <span class="fu">DMLtest</span>(BS_s, <span class="at">group1 =</span> g_exp, <span class="at">group2 =</span> g_ctrl, <span class="at">smoothing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>    <span class="at">dml =</span> <span class="fu">callDML</span>(dml, <span class="at">delta =</span> <span class="fl">0.25</span>, <span class="at">p.threshold =</span> <span class="fl">0.01</span>),</span>
+<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a>    <span class="at">dmr =</span> <span class="fu">callDMR</span>(dml, <span class="at">delta =</span> <span class="fl">0.10</span>, <span class="at">p.threshold =</span> <span class="fl">0.01</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a>                  <span class="at">minlen =</span> <span class="dv">50</span>, <span class="at">minCG =</span> <span class="dv">3</span>, <span class="at">dis.merge =</span> <span class="dv">100</span>, <span class="at">pct.sig =</span> <span class="fl">0.5</span>)</span>
+<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a>  )</span>
+<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>  <span class="co"># write per-stage results to disk immediately, so a later crash can&#39;t lose them</span></span>
+<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a>  <span class="fu">saveRDS</span>(dml, <span class="fu">file.path</span>(<span class="st">&quot;../output/10-diff-methyl-DSS&quot;</span>, <span class="fu">paste0</span>(stage_label, <span class="st">&quot;_DMLtest.rds&quot;</span>)))</span>
+<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a>  <span class="fu">rm</span>(dml, BS_s); <span class="fu">gc</span>()</span>
+<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a>  out</span>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>}</span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>res_zyg <span class="ot">&lt;-</span> <span class="fu">run_stage</span>(<span class="st">&quot;Zygote&quot;</span>); <span class="fu">gc</span>()</span></code></pre></div>
+<pre><code>## Smoothing ...
+## Estimating dispersion for each CpG site, this will take a while ...
+## Computing test statistics ...
+
+##             used   (Mb) gc trigger    (Mb)   max used    (Mb)
+## Ncells  10574476  564.8   25860940  1381.2   25860940  1381.2
+## Vcells 987304034 7532.6 2997073949 22865.9 2997055760 22865.8</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>res_lar <span class="ot">&lt;-</span> <span class="fu">run_stage</span>(<span class="st">&quot;Larvae&quot;</span>); <span class="fu">gc</span>()</span></code></pre></div>
+<pre><code>## Smoothing ...
+## Estimating dispersion for each CpG site, this will take a while ...
+## Computing test statistics ...
+
+##             used   (Mb) gc trigger    (Mb)   max used    (Mb)
+## Ncells  10574540  564.8   25860940  1381.2   25860940  1381.2
+## Vcells 987412396 7533.4 2877254991 21951.8 3596560766 27439.6</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Zygote: DMLs =&quot;</span>, <span class="fu">nrow</span>(res_zyg<span class="sc">$</span>dml), <span class="st">&quot; DMRs =&quot;</span>, <span class="fu">nrow</span>(res_zyg<span class="sc">$</span>dmr), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Zygote: DMLs = 7287  DMRs = 5208</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Larvae: DMLs =&quot;</span>, <span class="fu">nrow</span>(res_lar<span class="sc">$</span>dml), <span class="st">&quot; DMRs =&quot;</span>, <span class="fu">nrow</span>(res_lar<span class="sc">$</span>dmr), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Larvae: DMLs = 5330  DMRs = 4661</code></pre>
+<p>Use existing <code>.rds</code> saves if available</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="co"># summarise_stage &lt;- function(stage) {</span></span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="co">#   rds &lt;- file.path(&quot;../output/10-diff-methyl-DSS&quot;, paste0(stage, &quot;_DMLtest.rds&quot;))</span></span>
+<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a><span class="co">#   if (!file.exists(rds)) {</span></span>
+<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a><span class="co">#     message(stage, &quot;: &quot;, basename(rds), &quot; not found — skipping&quot;)</span></span>
+<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="co">#     return(NULL)</span></span>
+<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co">#   dml_test &lt;- readRDS(rds)   # the full DMLtest() output (per-CpG stats)</span></span>
+<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a><span class="co">#   # Called DMLs and DMRs (same thresholds as the 06.3 run)</span></span>
+<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a><span class="co">#   dmls &lt;- callDML(dml_test, delta = 0.25, p.threshold = 0.01)</span></span>
+<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a><span class="co">#   dmrs &lt;- callDMR(dml_test, delta = 0.10, p.threshold = 0.01,</span></span>
+<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="co">#                   minlen = 50, minCG = 3, dis.merge = 100, pct.sig = 0.5)</span></span>
+<span id="cb39-14"><a href="#cb39-14" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb39-15"><a href="#cb39-15" tabindex="-1"></a><span class="co">#   # callDMR returns NULL if no regions pass</span></span>
+<span id="cb39-16"><a href="#cb39-16" tabindex="-1"></a><span class="co">#   n_dmr &lt;- if (is.null(dmrs)) 0L else nrow(dmrs)</span></span>
+<span id="cb39-17"><a href="#cb39-17" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb39-18"><a href="#cb39-18" tabindex="-1"></a><span class="co">#   cat(&quot;\n===&quot;, stage, &quot;===\n&quot;)</span></span>
+<span id="cb39-19"><a href="#cb39-19" tabindex="-1"></a><span class="co">#   cat(&quot;CpG sites tested:      &quot;, nrow(dml_test), &quot;\n&quot;)</span></span>
+<span id="cb39-20"><a href="#cb39-20" tabindex="-1"></a><span class="co">#   cat(&quot;DMLs (|diff|&gt;0.25, p&lt;0.01):&quot;, nrow(dmls), &quot;\n&quot;)</span></span>
+<span id="cb39-21"><a href="#cb39-21" tabindex="-1"></a><span class="co">#   cat(&quot;  hyper (exposed &gt; control):&quot;, sum(dmls$diff &gt; 0), &quot;\n&quot;)</span></span>
+<span id="cb39-22"><a href="#cb39-22" tabindex="-1"></a><span class="co">#   cat(&quot;  hypo  (exposed &lt; control):&quot;, sum(dmls$diff &lt; 0), &quot;\n&quot;)</span></span>
+<span id="cb39-23"><a href="#cb39-23" tabindex="-1"></a><span class="co">#   cat(&quot;DMRs:                  &quot;, n_dmr, &quot;\n&quot;)</span></span>
+<span id="cb39-24"><a href="#cb39-24" tabindex="-1"></a><span class="co">#   if (n_dmr &gt; 0) {</span></span>
+<span id="cb39-25"><a href="#cb39-25" tabindex="-1"></a><span class="co">#     cat(&quot;  mean DMR length (bp): &quot;, round(mean(dmrs$length), 1), &quot;\n&quot;)</span></span>
+<span id="cb39-26"><a href="#cb39-26" tabindex="-1"></a><span class="co">#     cat(&quot;  mean CpGs per DMR:    &quot;, round(mean(dmrs$nCG), 1), &quot;\n&quot;)</span></span>
+<span id="cb39-27"><a href="#cb39-27" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb39-28"><a href="#cb39-28" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb39-29"><a href="#cb39-29" tabindex="-1"></a><span class="co">#   invisible(list(test = dml_test, dml = dmls, dmr = dmrs))</span></span>
+<span id="cb39-30"><a href="#cb39-30" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb39-31"><a href="#cb39-31" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb39-32"><a href="#cb39-32" tabindex="-1"></a><span class="co"># zyg &lt;- summarise_stage(&quot;Zygote&quot;)</span></span>
+<span id="cb39-33"><a href="#cb39-33" tabindex="-1"></a><span class="co"># lar &lt;- summarise_stage(&quot;Larvae&quot;)</span></span></code></pre></div>
+<h1 id="id_7-save-outputs">7 Save outputs</h1>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a><span class="co"># Per-stage DML BEDs (diff = mu1 - mu2 = exposed - control)</span></span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a><span class="fu">save_bed</span>(res_zyg<span class="sc">$</span>dml, <span class="st">&quot;../output/10-diff-methyl-DSS/zygote_DML.bed&quot;</span>, <span class="st">&quot;diff&quot;</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" tabindex="-1"></a><span class="fu">save_bed</span>(res_lar<span class="sc">$</span>dml, <span class="st">&quot;../output/10-diff-methyl-DSS/larvae_DML.bed&quot;</span>, <span class="st">&quot;diff&quot;</span>)</span>
+<span id="cb40-4"><a href="#cb40-4" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" tabindex="-1"></a><span class="co"># Region-level BEDs (diff.Methy is exposed - control at the region level)</span></span>
+<span id="cb40-6"><a href="#cb40-6" tabindex="-1"></a><span class="fu">save_bed</span>(res_zyg<span class="sc">$</span>dmr, <span class="st">&quot;../output/10-diff-methyl-DSS/zygote_DMR.bed&quot;</span>, <span class="st">&quot;diff.Methy&quot;</span>)</span>
+<span id="cb40-7"><a href="#cb40-7" tabindex="-1"></a><span class="fu">save_bed</span>(res_lar<span class="sc">$</span>dmr, <span class="st">&quot;../output/10-diff-methyl-DSS/larvae_DMR.bed&quot;</span>, <span class="st">&quot;diff.Methy&quot;</span>)</span></code></pre></div>
+<h2 id="id_71-directional-concordance-with-parental-gamete-dmls">7.1
+Directional concordance with parental gamete DMLs</h2>
+<p><code>07.2</code> only tested <em>positional</em> overlap, but we’re
+also interested in directional agreement (hyper/hypo).</p>
+<p>As a priliminary check for shared signal, read in the parental beds
+(sperm/egg DMLs, column 5 = parental methylation diff), join to the
+offspring DMLs on <code>chr</code> + <code>pos</code>, and compare the
+sign of the difference.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a>zyg_dmls <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">&quot;../output/10-diff-methyl-DSS/zygote_DML.bed&quot;</span>,</span>
+<span id="cb41-2"><a href="#cb41-2" tabindex="-1"></a>                  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>, <span class="st">&quot;zyg_diff&quot;</span>))</span></code></pre></div>
+<pre><code>## Rows: 7287 Columns: 4
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;\t&quot;
+## chr (1): chr
+## dbl (3): start, end, zyg_diff
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a>lar_dmls <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">&quot;../output/10-diff-methyl-DSS/larvae_DML.bed&quot;</span>,</span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a>                  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>, <span class="st">&quot;lar_diff&quot;</span>))</span></code></pre></div>
+<pre><code>## Rows: 5330 Columns: 4
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;\t&quot;
+## chr (1): chr
+## dbl (3): start, end, lar_diff
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>sperm <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">&quot;../data/adult_male_dml.bed&quot;</span>,</span>
+<span id="cb45-2"><a href="#cb45-2" tabindex="-1"></a>                  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>, <span class="st">&quot;strand&quot;</span>, <span class="st">&quot;par_diff&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb45-3"><a href="#cb45-3" tabindex="-1"></a>  <span class="fu">transmute</span>(chr, start, <span class="at">end =</span> end <span class="sc">-</span> <span class="dv">1</span>, <span class="at">par_diff =</span> par_diff<span class="sc">/</span><span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## Rows: 4175 Columns: 5
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;\t&quot;
+## chr (2): chr, strand
+## dbl (3): start, end, par_diff
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>egg <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(<span class="st">&quot;../data/adult_female_dml.bed&quot;</span>,</span>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a>                  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>, <span class="st">&quot;strand&quot;</span>, <span class="st">&quot;par_diff&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>  <span class="fu">transmute</span>(chr, start, <span class="at">end =</span> end <span class="sc">-</span> <span class="dv">1</span>, <span class="at">par_diff =</span> par_diff<span class="sc">/</span><span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## Rows: 128 Columns: 5
+## -- Column specification --------------------------------------------------------
+## Delimiter: &quot;\t&quot;
+## chr (2): chr, strand
+## dbl (3): start, end, par_diff
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a>shared_zyg_egg <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(zyg_dmls, egg, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb49-2"><a href="#cb49-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concordant =</span> <span class="fu">sign</span>(zyg_diff) <span class="sc">==</span> <span class="fu">sign</span>(par_diff))</span>
+<span id="cb49-3"><a href="#cb49-3" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" tabindex="-1"></a>shared_lar_egg<span class="ot">&lt;-</span> <span class="fu">inner_join</span>(lar_dmls, egg, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb49-5"><a href="#cb49-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concordant =</span> <span class="fu">sign</span>(lar_diff) <span class="sc">==</span> <span class="fu">sign</span>(par_diff))</span>
+<span id="cb49-6"><a href="#cb49-6" tabindex="-1"></a></span>
+<span id="cb49-7"><a href="#cb49-7" tabindex="-1"></a><span class="fu">summarise</span>(shared_zyg_egg, <span class="at">n_shared =</span> <span class="fu">n</span>(), <span class="at">n_concordant =</span> <span class="fu">sum</span>(concordant),</span>
+<span id="cb49-8"><a href="#cb49-8" tabindex="-1"></a>          <span class="at">pct_concordant =</span> <span class="fu">mean</span>(concordant) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 3
+##   n_shared n_concordant pct_concordant
+##      &lt;int&gt;        &lt;int&gt;          &lt;dbl&gt;
+## 1        1            1            100</code></pre>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a><span class="fu">summarise</span>(shared_lar_egg, <span class="at">n_shared =</span> <span class="fu">n</span>(), <span class="at">n_concordant =</span> <span class="fu">sum</span>(concordant),</span>
+<span id="cb51-2"><a href="#cb51-2" tabindex="-1"></a>          <span class="at">pct_concordant =</span> <span class="fu">mean</span>(concordant) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 3
+##   n_shared n_concordant pct_concordant
+##      &lt;int&gt;        &lt;int&gt;          &lt;dbl&gt;
+## 1        2            2            100</code></pre>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" tabindex="-1"></a>shared_zyg_sperm <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(zyg_dmls, sperm, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb53-2"><a href="#cb53-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concordant =</span> <span class="fu">sign</span>(zyg_diff) <span class="sc">==</span> <span class="fu">sign</span>(par_diff))</span>
+<span id="cb53-3"><a href="#cb53-3" tabindex="-1"></a></span>
+<span id="cb53-4"><a href="#cb53-4" tabindex="-1"></a>shared_lar_sperm <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(lar_dmls, sperm, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;chr&quot;</span>, <span class="st">&quot;start&quot;</span>, <span class="st">&quot;end&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb53-5"><a href="#cb53-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">concordant =</span> <span class="fu">sign</span>(lar_diff) <span class="sc">==</span> <span class="fu">sign</span>(par_diff))</span>
+<span id="cb53-6"><a href="#cb53-6" tabindex="-1"></a></span>
+<span id="cb53-7"><a href="#cb53-7" tabindex="-1"></a><span class="fu">summarise</span>(shared_zyg_sperm, <span class="at">n_shared =</span> <span class="fu">n</span>(), <span class="at">n_concordant =</span> <span class="fu">sum</span>(concordant),</span>
+<span id="cb53-8"><a href="#cb53-8" tabindex="-1"></a>          <span class="at">pct_concordant =</span> <span class="fu">mean</span>(concordant) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 3
+##   n_shared n_concordant pct_concordant
+##      &lt;int&gt;        &lt;int&gt;          &lt;dbl&gt;
+## 1       86           86            100</code></pre>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" tabindex="-1"></a><span class="fu">summarise</span>(shared_lar_sperm, <span class="at">n_shared =</span> <span class="fu">n</span>(), <span class="at">n_concordant =</span> <span class="fu">sum</span>(concordant),</span>
+<span id="cb55-2"><a href="#cb55-2" tabindex="-1"></a>          <span class="at">pct_concordant =</span> <span class="fu">mean</span>(concordant) <span class="sc">*</span> <span class="dv">100</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 3
+##   n_shared n_concordant pct_concordant
+##      &lt;int&gt;        &lt;int&gt;          &lt;dbl&gt;
+## 1       74           73           98.6</code></pre>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" tabindex="-1"></a><span class="fu">write_tsv</span>(dplyr<span class="sc">::</span><span class="fu">select</span>(shared_zyg_egg, <span class="sc">-</span>concordant), <span class="st">&quot;../output/10-diff-methyl-DSS/shared_zygote_egg_DML.bed&quot;</span>, <span class="at">col_names=</span><span class="cn">TRUE</span>)</span>
+<span id="cb57-2"><a href="#cb57-2" tabindex="-1"></a><span class="fu">write_tsv</span>(dplyr<span class="sc">::</span><span class="fu">select</span>(shared_lar_egg, <span class="sc">-</span>concordant), <span class="st">&quot;../output/10-diff-methyl-DSS/shared_larvae_egg_DML.bed&quot;</span>, <span class="at">col_names=</span><span class="cn">TRUE</span>)</span>
+<span id="cb57-3"><a href="#cb57-3" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" tabindex="-1"></a><span class="fu">write_tsv</span>(dplyr<span class="sc">::</span><span class="fu">select</span>(shared_zyg_sperm, <span class="sc">-</span>concordant), <span class="st">&quot;../output/10-diff-methyl-DSS/shared_zygote_sperm_DML.bed&quot;</span>, <span class="at">col_names=</span><span class="cn">TRUE</span>)</span>
+<span id="cb57-5"><a href="#cb57-5" tabindex="-1"></a><span class="fu">write_tsv</span>(dplyr<span class="sc">::</span><span class="fu">select</span>(shared_lar_sperm, <span class="sc">-</span>concordant), <span class="st">&quot;../output/10-diff-methyl-DSS/shared_larvae_sperm_DML.bed&quot;</span>, <span class="at">col_names=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>For a real answer, however, we’d want to (a) re-evaluate parental
+differential methylation signal using DSS as well (instead of relying on
+the DMLs that were previously identified by Venkataraman et al using
+<code>methylKit</code>), and (b) test whether parent-offspring DML
+overlap exceeds chance (“enriched”)</p>
+
+</body>
+</html>

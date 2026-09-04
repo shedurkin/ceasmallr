@@ -10,4 +10,4 @@
 
 apptainer exec --bind /gscratch:/gscratch \
  /gscratch/srlab/kdurkin1/srlab-R4.4-bioinformatics-container-703094b.sif \
-  bash -c 'source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh && conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss && Rscript -e "rmarkdown::render(\"10-diff-methyl-DSS.Rmd\")"'
+  bash -c 'source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh && conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss && Rscript -e "rmarkdown::render(\"10.1-diff-methyl-DSS-parents.Rmd\")"'

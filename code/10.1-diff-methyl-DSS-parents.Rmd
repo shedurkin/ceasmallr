@@ -1,0 +1,381 @@
+---
+title: "10.1-diff-methyl-DSS-parents"
+author: "Kathleen Durkin"
+date: "`r Sys.Date()`"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+Differential methylation analysis using the `DSS` package (Dispersion Shrinkage for Sequencing data). This is essentially an identical copy of `10-diff-methyl-DSS.Rmd`, BUT it will be applied to the data from parental gametes (analyzed in more depth in Venkataraman et al. 2024).
+
+# Setup
+
+As in `10-diff-methyl-DSS.Rmd`, will need to run this .Rmd file from the identically-named .sh script, due to permissions and memory issues.
+
+```{r, engine='bash', eval=FALSE}
+#!/bin/bash
+#SBATCH --account=srlab
+#SBATCH --partition=cpu-g2-mem2x
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=350G
+#SBATCH --time=1-00:00:00
+#SBATCH --output=dss_parent_%j.out
+#SBATCH --error=dss_parent_%j.err
+#SBATCH --chdir=/gscratch/srlab/kdurkin1/ceasmallr/code
+
+apptainer exec --bind /gscratch:/gscratch \
+ /gscratch/srlab/kdurkin1/srlab-R4.4-bioinformatics-container-703094b.sif \
+  bash -c 'source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh && conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss && Rscript -e "rmarkdown::render(\"10.1-diff-methyl-DSS-parents.Rmd\")"'
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+# Install if needed:
+# if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install(c("DSS", "bsseq"))
+
+library(DSS)
+library(bsseq)
+library(readr)
+library(dplyr)
+library(stringr)
+library(tibble)
+library(ggplot2)
+```
+
+# Download methylation calls
+
+I believe I've found the  `bismark` .cov.gz coverage files for the ceabigr parent gametes stored at: https://gannet.fish.washington.edu/seashell/bu-mox/scrubbed/120321-cvBS/
+
+Importantly, not all of these individuals were included in the crosses that generated our study's offspring individuals. I need to ID the parents of all of our individuals, get their original sample names, and then download their respective files. 
+
+```{r download-parent-files, engine='bash', eval=FALSE}
+
+# For all offspring, grab their two parent IDs from filenames
+parents=$(ls ../data/bismark-methyl-extraction/*.cov.gz \
+| xargs -n1 basename \
+| sed -E 's/^([A-Za-z0-9]+)-([A-Za-z0-9]+)-.*/\1\n\2/' \
+| sort -u)
+
+# from parent IDs, identify sex (M/F) and treatment (C/E)
+# also, from metadata file, use Sample ID to get original Parent ID (used in parent data file names)
+: > "../data/bismark-methyl-extraction-parents/parent_lookup.tsv"
+printf 'Parent.ID\ttreatment\tsex\tSample.ID\n' >> "../data/bismark-methyl-extraction-parents/parent_lookup.tsv"
+sample_ids=()
+while read -r p; do
+  case ${p:0:1} in C) trt=Control;; E) trt=Exposed;; *) trt=NA;; esac
+  case ${p:1:1} in F) sex=Female;;  M) sex=Male;;    *) sex=NA;; esac
+  sid=$(awk -F, -v pid="$p" 'NR>1 && $6==pid {print $1; exit}' "../data/adult-meta.csv")
+  if [ -z "$sid" ]; then
+    printf '%s\t%s\t%s\t<NO MATCH>\n' "$p" "$trt" "$sex" >> "../data/bismark-methyl-extraction-parents/parent_lookup.tsv"
+    echo "WARNING: no metadata match for parent $p , skipping" >&2
+  else
+    printf '%s\t%s\t%s\t%s\n' "$p" "$trt" "$sex" "$sid" >> "../data/bismark-methyl-extraction-parents/parent_lookup.tsv"
+    sample_ids+=("$sid")
+  fi
+done <<< "$parents"
+
+# now that we have list of Parent IDs, download corresponding .cov.gz files from storage
+alt=$(IFS='|'; echo "${sample_ids[*]}")
+wget -r -np -nd -nc \
+     --accept-regex "/(${alt})[^/]*\.cov\.gz$" \
+     -P "../data/bismark-methyl-extraction-parents" "https://gannet.fish.washington.edu/seashell/bu-mox/scrubbed/120321-cvBS/"
+
+```
+
+IMPORTANT: There doesn't seem to be a record for the parent `CM03`? While I have two offspring labelled with that parent, CM03 isn't included in the `adult-meta.csv` file...
+
+Will need to go back to original repo to try to figure out what's going on.
+
+```{r check-download, engine='bash', eval=FALSE}
+cd ../data/bismark-methyl-extraction-parents/
+
+echo "How many methylation calling files were downloaded?"
+ls *.deduplicated.bismark.cov.gz | wc -l
+
+echo ""
+
+echo "Check file checksums:"
+grep '.deduplicated.bismark.cov.gz' checksums.md5 | md5sum -c -
+```
+
+
+# Read Bismark coverage into a BSseq object
+
+NOTE: When working with the offspring data, I ended up dropping several low-yeild libraries. While I should still actually check the multiqc report for parental data, all of the bismark .cov.gz files are large enough (>100MB) that I'm not overly worried about low-yield issues. For now I'll keep all of them in.
+
+```{r sample-metadata}
+file.list  <- list.files("../data/bismark-methyl-extraction-parents", pattern = "\\.bismark\\.cov\\.gz$", full.names = TRUE)
+
+# As in 06.2, drop the low-yield libraries (<100M Cs)
+# BUT, could keep all samples and let DSS handle the coverage differences -- come back to later.
+# drop <- c("CF01-CM01-Zygote", "CF08-CM04-Larvae", "CF08-CM05-Larvae", "EF04-EM04-Zygote", "EF05-EM05-Zygote")
+# file.list <- file.list[!str_detect(basename(file.list), str_c(drop, collapse = "|"))]
+
+# format sample IDs
+sample.ids <- basename(file.list) %>%
+  str_replace("_R1_val_1_bismark_bt2_pe\\.deduplicated\\.bismark\\.cov\\.gz$", "")
+
+# Grab treatment and sex info
+# Sex info is contained within Sample IDs (M/F)
+# Treatment info will require cross-reference with metadata file
+adult_meta <- read_csv("../data/adult-meta.csv", show_col_types = FALSE)
+
+meta <- tibble(sample = sample.ids, file = file.list) %>%
+  # sex straight from the filename ID (trailing F / M)
+  mutate(sex = case_when(str_ends(sample, "F") ~ "Female",
+                         str_ends(sample, "M") ~ "Male",
+                         TRUE ~ NA_character_)) %>%
+  # treatment (and metadata Sex, for the cross-check) by Sample.ID
+  left_join(adult_meta %>% select(Sample.ID, Treatment, Sex),
+            by = c("sample" = "Sample.ID")) %>%
+  mutate(
+    # reference levels: Control = effect of exposure; Female = reference sex
+    treatment = factor(Treatment, levels = c("Control", "Exposed")),
+    sex       = factor(sex,       levels = c("Female",  "Male"))
+  )
+
+knitr::kable(count(meta, treatment, sex))
+```
+
+```{r read-cov}
+colData <- DataFrame(treatment = meta$treatment,
+                     sex     = meta$sex,
+                     row.names = meta$sample)
+
+BSobj <- read.bismark(files          = meta$file,
+                      colData        = colData,
+                      rmZeroCov      = TRUE,          # drops positions covered in 0 samples
+                      strandCollapse = FALSE,         # .cov isn't a cytosine report; leave off
+                      BPPARAM        = MulticoreParam(workers = 12, progressbar = TRUE),
+                      verbose        = TRUE)
+BSobj    # positions are the UNION across samples; missing positions get N = 0
+```
+
+```{r coverage-filter}
+# DSS tolerates missingness
+# For now, require non-zero coverage in at least half the samples of each treatment x sex cell to reduce noise
+# (MAY WANT TO ADJUST LATER)
+cov_mat <- getCoverage(BSobj, type = "Cov")           # loci x samples
+cells   <- interaction(meta$treatment, meta$sex, drop = TRUE)
+
+keep <- Reduce(`&`, lapply(levels(cells), function(cl) {
+  idx <- which(cells == cl)
+  rowSums(cov_mat[, idx, drop = FALSE] > 0) >= ceiling(length(idx) / 2)
+}))
+
+BSobj <- BSobj[keep, ]
+cat("Loci retained after coverage filter:", nrow(BSobj), "\n")
+```
+
+
+EDIT: All of the downstream  model fitting calls are *super* intensive and take forever to run. Since I have to run this from Rscript, and thus cannot easily retain R objects between runs, this is making script troubleshooting super time-intensive and annoying. To facilitate troubleshooting, I'm going to add a test run option that will randomly subsample a tiny fraction of the data to proceed with:
+
+```{r test-run-filter}
+# Keeps all samples but randomly thins loci genome-wide
+# set test_run to FALSE for full-data runs
+test_run  <- FALSE 
+test_frac <- 0.02      # keep 2% of loci
+
+if (test_run) {
+  set.seed(1)
+  idx   <- sort(sample(nrow(BSobj), size = floor(nrow(BSobj) * test_frac)))
+  BSobj <- BSobj[idx, ]
+  cat("TEST RUN — loci subsampled to:", nrow(BSobj), "\n")
+}
+
+```
+
+
+# Multi-factor model (design-level tests)
+
+Fit an interaction model for tests of *sex-dependence* (does effect of parental exposure differ between the sexes)
+```{r multifactor-fit}
+design <- data.frame(treatment = meta$treatment, sex = meta$sex)
+
+# Interaction model: does the parental-treatment effect differ by sex?
+fit_int <- DMLfit.multiFactor(BSobj, design = design,
+                              formula = ~ treatment + sex + treatment:sex)
+
+# Inspect coefficient names so we test the right columns
+colnames(fit_int$X)
+```
+
+## Parental treatment effect
+
+Fit an additive model (no interaction) to test for signal of parental treatment effect while *controlling for sex*.
+
+```{r treatment-effect}
+fit_add  <- DMLfit.multiFactor(BSobj, design = design, formula = ~ treatment + sex)
+
+test_trt <- DMLtest.multiFactor(fit_add, coef = "treatmentExposed")
+head(test_trt[order(test_trt$pvals), ])
+
+# DMLs = FDR threshold (multiFactor gives per-site fdrs, not a methylKit-style % difference)
+dml_trt <- test_trt[which(test_trt$fdrs < 0.05), ]
+cat("Treatment DMLs (FDR < 0.05):", nrow(dml_trt), "\n")
+
+# Regions
+dmr_trt <- callDMR(test_trt, p.threshold = 0.01, minlen = 50, minCG = 3, dis.merge = 100)
+cat("Treatment DMRs:", nrow(dmr_trt), "\n")
+```
+
+## sex-dependence of the treatment effect
+
+A *null* interaction at treatment-associated loci = signal present in both sexes. A *significant* interaction = the effect differs between male and female
+
+```{r interaction-test}
+test_intx <- DMLtest.multiFactor(fit_int, coef = "treatmentExposed:sexMale")
+head(test_intx[order(test_intx$pvals), ])
+
+dml_intx <- test_intx[which(test_intx$fdrs < 0.05), ]
+cat("Loci with sex-dependent treatment effect (FDR < 0.05):", nrow(dml_intx), "\n")
+```
+
+# Save outputs
+
+```{r save-outputs}
+save_bed <- function(df, path, score_col) {
+  # callDMR() returns NULL when no regions pass; callDML() can return 0 rows.
+  # Write an empty .bed in that case rather than erroring, so a knit completes.
+  if (is.null(df) || nrow(df) == 0) {
+    file.create(path)
+    message("save_bed: no rows for ", basename(path), " — wrote empty file.")
+    return(invisible(NULL))
+  }
+  # Region tables (callDMR) carry chr/start/end; single-base DML tables
+  # (DMLtest/callDML) carry chr/pos — derive a 0-based, half-open interval.
+  if (all(c("chr","start","end") %in% names(df))) {
+    start <- df$start; end <- df$end
+  } else if (all(c("chr","pos") %in% names(df))) {
+    start <- df$pos - 1L; end <- df$pos
+  } else {
+    stop("save_bed: df lacks chr/start/end or chr/pos for ", basename(path),
+         " - columns are: ", paste(names(df), collapse=", "))
+  }
+  score <- if (score_col %in% names(df)) df[[score_col]] else NA_real_
+  bed <- data.frame(chr = df$chr, start = start, end = end, score = score)
+  write.table(bed, path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+}
+
+# Site-level tables
+write_tsv(test_trt,  "../output/10.1-diff-methyl-DSS-parents/multifactor_treatment_test.tsv")
+write_tsv(test_intx, "../output/10.1-diff-methyl-DSS-parents/multifactor_interaction_test.tsv")
+
+# Region-level BEDs (multifactor DMR uses `areaStat` as region-level test statistic)
+save_bed(dmr_trt, "../output/10.1-diff-methyl-DSS-parents/treatment_DMR.bed", "areaStat")
+```
+
+# Two-group smoothed test within each sex
+
+Also want to try within-sex tests with DSS. For non-multifactor tets, DSS makes use of smoothing and dispersion shrinkage to essentially "borrow" info across neighboring CpG sites. This can be useful for handling low-coverage libraries.
+
+It also produces effect estimates of the same type as `methylKit` (% methylation difference), which could be useful for more direct comparisons to the conventions used in Rondon et al. 2017 and Venkataraman et al. 2024. It would also be useful for questions involving directional concordance (hyper- v hypo-methylation)
+
+WARNING: Both the sex-specific DMLtest() runs are **very** memory-intensive. I've needed to up the node request to ~300G just to successfully complete them, and it takes a while to finish. 
+```{r per-sex-smoothed}
+
+run_sex <- function(sex_label) {
+  s_idx  <- which(meta$sex == sex_label)
+  BS_s   <- BSobj[, s_idx]
+  g_exp  <- meta$sample[s_idx][meta$treatment[s_idx] == "Exposed"]
+  g_ctrl <- meta$sample[s_idx][meta$treatment[s_idx] == "Control"]
+  dml <- DMLtest(BS_s, group1 = g_exp, group2 = g_ctrl, smoothing = TRUE)
+  out <- list(
+    dml = callDML(dml, delta = 0.25, p.threshold = 0.01),
+    dmr = callDMR(dml, delta = 0.10, p.threshold = 0.01,
+                  minlen = 50, minCG = 3, dis.merge = 100, pct.sig = 0.5)
+  )
+  # write per-sex results to disk immediately, so a later crash can't lose them
+  saveRDS(dml, file.path("../output/10.1-diff-methyl-DSS-parents", paste0(sex_label, "_DMLtest.rds")))
+  rm(dml, BS_s); gc()
+  out
+}
+res_fem <- run_sex("Female"); gc()
+res_male <- run_sex("Male"); gc()
+
+cat("Female: DMLs =", nrow(res_fem$dml), " DMRs =", nrow(res_fem$dmr), "\n")
+cat("Larvae: DMLs =", nrow(res_male$dml), " DMRs =", nrow(res_male$dmr), "\n")
+```
+
+
+# Save outputs
+
+```{r save-outputs2}
+# Per-sex DML BEDs (diff = mu1 - mu2 = exposed - control)
+save_bed(res_fem$dml, "../output/10.1-diff-methyl-DSS-parents/female_DML.bed", "diff")
+save_bed(res_male$dml, "../output/10.1-diff-methyl-DSS-parents/male_DML.bed", "diff")
+
+# Region-level BEDs (diff.Methy is exposed - control at the region level)
+save_bed(res_fem$dmr, "../output/10.1-diff-methyl-DSS-parents/female_DMR.bed", "diff.Methy")
+save_bed(res_male$dmr, "../output/10.1-diff-methyl-DSS-parents/male_DMR.bed", "diff.Methy")
+```
+
+
+## Directional concordance with parental gamete DMLs -- UPDATED parental DMLs
+
+Same check as in `10-diff-methyl-DSS`, but this time using parental DMLs derived using DSS
+
+```{r parental-check-load}
+zyg_dmls <- read_tsv("../output/10-diff-methyl-DSS/zygote_DML.bed",
+                  col_names = c("chr", "start", "end", "zyg_diff"))
+
+lar_dmls <- read_tsv("../output/10-diff-methyl-DSS/larvae_DML.bed",
+                  col_names = c("chr", "start", "end", "lar_diff"))
+
+sperm <- read_tsv("../output/10.1-diff-methyl-DSS-parents/male_DML.bed",
+                  col_names = c("chr", "start", "end", "par_diff"))
+
+egg <- read_tsv("../output/10.1-diff-methyl-DSS-parents/female_DML.bed",
+                  col_names = c("chr", "start", "end", "par_diff"))
+```
+
+```{r maternal-checks}
+shared_zyg_egg <- inner_join(zyg_dmls, egg, by = c("chr", "start", "end")) %>%
+  mutate(concordant = sign(zyg_diff) == sign(par_diff))
+
+shared_lar_egg<- inner_join(lar_dmls, egg, by = c("chr", "start", "end")) %>%
+  mutate(concordant = sign(lar_diff) == sign(par_diff))
+
+summarise(shared_zyg_egg, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+
+summarise(shared_lar_egg, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+```
+
+```{r paternal-checks}
+shared_zyg_sperm <- inner_join(zyg_dmls, sperm, by = c("chr", "start", "end")) %>%
+  mutate(concordant = sign(zyg_diff) == sign(par_diff))
+
+shared_lar_sperm <- inner_join(lar_dmls, sperm, by = c("chr", "start", "end")) %>%
+  mutate(concordant = sign(lar_diff) == sign(par_diff))
+
+summarise(shared_zyg_sperm, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+
+summarise(shared_lar_sperm, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+```
+
+```{r}
+write_tsv(dplyr::select(shared_zyg_egg, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_zygote_egg_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_lar_egg, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_larvae_egg_DML.bed", col_names=TRUE)
+
+write_tsv(dplyr::select(shared_zyg_sperm, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_zygote_sperm_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_lar_sperm, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_larvae_sperm_DML.bed", col_names=TRUE)
+
+```
+
+NExt I want to test whether parent-offspring DML overlap exceeds chance ("enriched")

@@ -14,3 +14,10 @@ Cvirginica_v300.fa
 *.deduplicated.bismark.cov.gz
 *.CpG_report.txt.gz
 
+data/bismark-methyl-extraction/*.cov.gz
+data/bismark-methyl-extraction-parents/*.cov.gz
+
+output/10-diff-methyl-DSS/*.rds
+output/10-diff-methyl-DSS/*.tsv
+output/10.1-diff-methyl-DSS-parents/*.rds
+output/10.1-diff-methyl-DSS-parents/*.tsv

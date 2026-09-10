@@ -1,0 +1,42 @@
+WARNING: ignoring environment value of R_HOME
+1/39                      
+2/39 [unnamed-chunk-1]    
+3/39                      
+4/39 [setup]              
+5/39                      
+6/39 [download-methyl]    
+7/39                      
+8/39 [check-download]     
+9/39                      
+10/39 [sample-metadata]    
+11/39                      
+12/39 [read-cov]           
+13/39                      
+14/39 [coverage-filter]    
+15/39                      
+16/39 [test-run-filter]    
+17/39                      
+18/39 [multifactor-fit]    
+19/39                      
+20/39 [treatment-effect]   
+21/39                      
+22/39 [interaction-test]   
+23/39                      
+24/39 [save-outputs]       
+25/39                      
+26/39 [per-stage-smoothed] 
+27/39                      
+28/39 [unnamed-chunk-2]    
+29/39                      
+30/39 [save-outputs2]      
+31/39                      
+32/39 [parental-check-load]
+33/39                      
+34/39 [maternal-checks]    
+35/39                      
+36/39 [paternal-checks]    
+37/39                      
+38/39 [unnamed-chunk-3]    
+39/39                      
+/gscratch/srlab/kdurkin1/.conda/envs/dss/bin/pandoc +RTS -K512m -RTS 10-diff-methyl-DSS.knit.md --to gfm-tex_math_gfm-yaml_metadata_block --from markdown+autolink_bare_uris+tex_math_single_backslash+gfm_auto_identifiers --output 10-diff-methyl-DSS.md --lua-filter /gscratch/srlab/kdurkin1/.conda/envs/dss/lib/R/library/rmarkdown/rmarkdown/lua/number-sections.lua --standalone --table-of-contents --toc-depth 3 --template /gscratch/srlab/kdurkin1/.conda/envs/dss/lib/R/library/rmarkdown/rmarkdown/templates/github_document/resources/default.md 
+/gscratch/srlab/kdurkin1/.conda/envs/dss/bin/pandoc +RTS -K512m -RTS 10-diff-methyl-DSS.md --to html4 --from gfm-tex_math_gfm --output 10-diff-methyl-DSS.html --embed-resources --standalone --syntax-highlighting pygments --template /gscratch/srlab/kdurkin1/.conda/envs/dss/lib/R/library/rmarkdown/rmarkdown/templates/github_document/resources/preview.html --variable 'github-markdown-css:/gscratch/srlab/kdurkin1/.conda/envs/dss/lib/R/library/rmarkdown/rmarkdown/templates/github_document/resources/github.css' --metadata pagetitle=PREVIEW --mathjax 

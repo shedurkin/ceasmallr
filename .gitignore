@@ -19,5 +19,7 @@ data/bismark-methyl-extraction-parents/*.cov.gz
 
 output/10-diff-methyl-DSS/*.rds
 output/10-diff-methyl-DSS/*.tsv
+output/10-diff-methyl-DSS_remsamples/*.rds
+output/10-diff-methyl-DSS_remsamples/*.tsv
 output/10.1-diff-methyl-DSS-parents/*.rds
 output/10.1-diff-methyl-DSS-parents/*.tsv

@@ -193,13 +193,13 @@ BSobj <- read.bismark(files          = meta$file,
 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   6%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |===========                                                           |  16%  |                                                                              |==============                                                        |  19%  |                                                                              |================                                                      |  23%  |                                                                              |==================                                                    |  26%  |                                                                              |====================                                                  |  29%  |                                                                              |=======================                                               |  32%  |                                                                              |=========================                                             |  35%  |                                                                              |===========================                                           |  39%  |                                                                              |=============================                                         |  42%  |                                                                              |================================                                      |  45%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |======================================                                |  55%  |                                                                              |=========================================                             |  58%  |                                                                              |===========================================                           |  61%  |                                                                              |=============================================                         |  65%  |                                                                              |===============================================                       |  68%  |                                                                              |==================================================                    |  71%  |                                                                              |====================================================                  |  74%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  81%  |                                                                              |===========================================================           |  84%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 
-    ## Done in 69.6 secs
+    ## Done in 69 secs
 
     ## [read.bismark] Parsing files and constructing 'M' and 'Cov' matrices ...
 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |=======                                                               |   9%  |                                                                              |=========                                                             |  12%  |                                                                              |===========                                                           |  16%  |                                                                              |=============                                                         |  19%  |                                                                              |===============                                                       |  22%  |                                                                              |==================                                                    |  25%  |                                                                              |====================                                                  |  28%  |                                                                              |======================                                                |  31%  |                                                                              |========================                                              |  34%  |                                                                              |==========================                                            |  38%  |                                                                              |============================                                          |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |=======================================                               |  56%  |                                                                              |==========================================                            |  59%  |                                                                              |============================================                          |  62%  |                                                                              |==============================================                        |  66%  |                                                                              |================================================                      |  69%  |                                                                              |==================================================                    |  72%  |                                                                              |====================================================                  |  75%  |                                                                              |=======================================================               |  78%  |                                                                              |=========================================================             |  81%  |                                                                              |===========================================================           |  84%  |                                                                              |=============================================================         |  88%  |                                                                              |===============================================================       |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 
-    ## Done in 27 secs
+    ## Done in 26.5 secs
 
     ## [read.bismark] Constructing BSseq object ...
 
@@ -236,7 +236,8 @@ and take forever to run. Since I have to run this from Rscript, and thus
 cannot easily retain R objects between runs, this is making script
 troubleshooting super time-intensive and annoying. To facilitate
 troubleshooting, I’m going to add a test run option that will randomly
-subsample a tiny fraction of the data to proceed with:
+subsample a tiny fraction of the data to proceed with. ONLY use this for
+test-runs
 
 ``` r
 # Keeps all samples but randomly thins loci genome-wide
@@ -251,6 +252,41 @@ if (test_run) {
   cat("TEST RUN — loci subsampled to:", nrow(BSobj), "\n")
 }
 ```
+
+Also save the set of loci being tested in the following analyses (for
+reference when evaluating the effects of including/excluding my
+low-coverage offspring samples)
+
+``` r
+gr <- granges(BSobj)
+tested <- data.frame(chr   = as.character(seqnames(gr)),
+                     start = start(gr) - 1L,
+                     end   = start(gr))
+write_tsv(tested, file.path("../output/10-diff-methyl-DSS", "tested_loci.bed.gz"), col_names = FALSE)
+cat("Tested-locus set size:", nrow(tested), "loci\n")
+```
+
+    ## Tested-locus set size: 6337469 loci
+
+``` r
+# compact summary
+knitr::kable(as.data.frame(table(tested$chr)),
+             col.names = c("chr", "n_loci_tested"))
+```
+
+| chr         | n_loci_tested |
+|:------------|--------------:|
+| NC_007175.2 |           869 |
+| NC_035780.1 |        740251 |
+| NC_035781.1 |        688154 |
+| NC_035782.1 |        777576 |
+| NC_035783.1 |        693889 |
+| NC_035784.1 |       1217134 |
+| NC_035785.1 |        350838 |
+| NC_035786.1 |        386124 |
+| NC_035787.1 |        545166 |
+| NC_035788.1 |        709957 |
+| NC_035789.1 |        227511 |
 
 # 4 Multi-factor model (design-level tests)
 
@@ -415,6 +451,8 @@ run_stage <- function(stage_label) {
   )
   # write per-stage results to disk immediately, so a later crash can't lose them
   saveRDS(dml, file.path("../output/10-diff-methyl-DSS", paste0(stage_label, "_DMLtest.rds")))
+  write_tsv(as.data.frame(dml), file.path("../output/10-diff-methyl-DSS", paste0(stage_label, "_DMLtest.tsv.gz")))
+  
   rm(dml, BS_s); gc()
   out
 }
@@ -423,11 +461,27 @@ res_zyg <- run_stage("Zygote"); gc()
 
     ## Smoothing ...
     ## Estimating dispersion for each CpG site, this will take a while ...
+
+    ## Warning in mclapply(1:nrow(X2), foo, mc.cores = ncores): scheduled cores 127,
+    ## 130, 137, 150, 154, 167, 171, 179, 182, 183, 184, 185, 186, 187, 188, 189 did
+    ## not deliver results, all values of the jobs will be affected
+
+    ## Warning in shrk.phi[ix] <- shrk.phi2: number of items to replace is not a
+    ## multiple of replacement length
+
+    ## Warning in mclapply(1:nrow(X2), foo, mc.cores = ncores): scheduled cores 124,
+    ## 128, 138, 152, 153, 154, 156, 157, 158, 161, 162, 163, 165, 167, 169, 170, 171,
+    ## 172, 173, 174, 175, 177, 178, 179, 180, 181, 183, 184, 185, 186 did not deliver
+    ## results, all values of the jobs will be affected
+
+    ## Warning in shrk.phi[ix] <- shrk.phi2: number of items to replace is not a
+    ## multiple of replacement length
+
     ## Computing test statistics ...
 
     ##              used   (Mb) gc trigger    (Mb)   max used    (Mb)
-    ## Ncells   10574029  564.8   26851003  1434.0   26851003  1434.0
-    ## Vcells 1011141936 7714.5 2973613095 22686.9 2973600988 22686.8
+    ## Ncells   10574794  564.8   27015671  1442.8   27015671  1442.8
+    ## Vcells 1020658173 7787.1 2973613454 22686.9 2973610954 22686.9
 
 ``` r
 res_lar <- run_stage("Larvae"); gc()
@@ -438,14 +492,14 @@ res_lar <- run_stage("Larvae"); gc()
     ## Computing test statistics ...
 
     ##              used   (Mb) gc trigger    (Mb)   max used    (Mb)
-    ## Ncells   10574091  564.8   26851003  1434.0   26851003  1434.0
-    ## Vcells 1011229902 7715.1 2973613095 22686.9 2973600988 22686.8
+    ## Ncells   10574857  564.8   27015671  1442.8   27015671  1442.8
+    ## Vcells 1020746151 7787.7 2973613454 22686.9 2973611614 22686.9
 
 ``` r
 cat("Zygote: DMLs =", nrow(res_zyg$dml), " DMRs =", nrow(res_zyg$dmr), "\n")
 ```
 
-    ## Zygote: DMLs = 5357  DMRs = 4145
+    ## Zygote: DMLs = 5859  DMRs = 4393
 
 ``` r
 cat("Larvae: DMLs =", nrow(res_lar$dml), " DMRs =", nrow(res_lar$dmr), "\n")
@@ -517,7 +571,7 @@ zyg_dmls <- read_tsv("../output/10-diff-methyl-DSS/zygote_DML.bed",
                   col_names = c("chr", "start", "end", "zyg_diff"))
 ```
 
-    ## Rows: 5357 Columns: 4
+    ## Rows: 5859 Columns: 4
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: "\t"
     ## chr (1): chr
@@ -610,7 +664,7 @@ summarise(shared_zyg_sperm, n_shared = n(), n_concordant = sum(concordant),
     ## # A tibble: 1 x 3
     ##   n_shared n_concordant pct_concordant
     ##      <int>        <int>          <dbl>
-    ## 1       95           95            100
+    ## 1       96           96            100
 
 ``` r
 summarise(shared_lar_sperm, n_shared = n(), n_concordant = sum(concordant),

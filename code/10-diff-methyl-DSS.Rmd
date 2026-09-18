@@ -173,7 +173,7 @@ cat("Loci retained after coverage filter:", nrow(BSobj), "\n")
 ```
 
 
-EDIT: All of the downstream  model fitting calls are *super* intensive and take forever to run. Since I have to run this from Rscript, and thus cannot easily retain R objects between runs, this is making script troubleshooting super time-intensive and annoying. To facilitate troubleshooting, I'm going to add a test run option that will randomly subsample a tiny fraction of the data to proceed with:
+EDIT: All of the downstream  model fitting calls are *super* intensive and take forever to run. Since I have to run this from Rscript, and thus cannot easily retain R objects between runs, this is making script troubleshooting super time-intensive and annoying. To facilitate troubleshooting, I'm going to add a test run option that will randomly subsample a tiny fraction of the data to proceed with. ONLY use this for test-runs
 
 ```{r test-run-filter}
 # Keeps all samples but randomly thins loci genome-wide
@@ -190,6 +190,20 @@ if (test_run) {
 
 ```
 
+Also save the set of loci being tested in the following analyses (for reference when evaluating the effects of including/excluding my low-coverage offspring samples)
+```{r write-tested-loci}
+
+gr <- granges(BSobj)
+tested <- data.frame(chr   = as.character(seqnames(gr)),
+                     start = start(gr) - 1L,
+                     end   = start(gr))
+write_tsv(tested, file.path("../output/10-diff-methyl-DSS", "tested_loci.bed.gz"), col_names = FALSE)
+cat("Tested-locus set size:", nrow(tested), "loci\n")
+
+# compact summary
+knitr::kable(as.data.frame(table(tested$chr)),
+             col.names = c("chr", "n_loci_tested"))
+```
 
 # Multi-factor model (design-level tests)
 
@@ -294,6 +308,8 @@ run_stage <- function(stage_label) {
   )
   # write per-stage results to disk immediately, so a later crash can't lose them
   saveRDS(dml, file.path("../output/10-diff-methyl-DSS", paste0(stage_label, "_DMLtest.rds")))
+  write_tsv(as.data.frame(dml), file.path("../output/10-diff-methyl-DSS", paste0(stage_label, "_DMLtest.tsv.gz")))
+  
   rm(dml, BS_s); gc()
   out
 }

@@ -339,6 +339,29 @@ cat("  hypo  in exposed (beta < 0):", sum(dml$beta < 0), "\n")
 head(dml)
 ```
 
+
+Breakdown of what each column represents:
+
+- `n` : The per-site sample size -- for that site, how many individuals (out of 32) had coverage at this site and were used during model fitting
+- `intercept` : baseline methylation for the reference group (Control, Zygote) on the logit scale
+- `se_intercept` : SE of interecpt ^
+- `beta` : DML effect -- change in log-odds methylation, adjusted for lifestage and relatedness. Sign indicates direction (hyper-or hypo-methylated)
+- `se_beta` : SE of `beta` ^
+- `pvalue` : Wald-test p-value (H_0 is beta=0, no treatment effect) -- NOTE this is not corrected for multiple testing in default output, have to correct manually
+- `h2` : heritability metric, fraction of latent variance assigned to relatedness -- eaaentially, how much of methylation variance at the site is explained by pedigree. High `h2` indicates signal at the DML is family-structured
+- `sigma2`: total variance component (kinship + residual)
+- `converged` : did the model fit converge?
+- `elapsed_time` : time required to fit the site
+
+I've added:
+
+- `padj` : *adjusted* pvalue (BH, calculated from `pvalue`)
+- `pos`/`chr` parsed genomic coordinates
+
+
+NOTE that `beta` is a logit-scale log-odds, *not* a % methylation difference, so magnitudes are not directly comparable to methylation difference values produced by `DSS` or `methylKit`. I can still, however, compare direction (+/- to indicate hyper-/hypomethylation) and rank.
+
+
 # Save outputs
 
 ```{r save-outputs}
@@ -360,8 +383,23 @@ save_bed <- function(df, path, score_col) {
   write.table(bed, path, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
 }
 
-write_tsv(res, "../output/11.1-diff-methyl-MACAU/pqlseq_treatment_test.tsv")
-save_bed(dml, "../output/11.1-diff-methyl-MACAU/treatment_DML.bed", "beta")
+write_tsv(res, "../output/11-diff-methyl-MACAU/pqlseq_treatment_test.tsv")
+save_bed(dml, "../output/11-diff-methyl-MACAU/treatment_DML.bed", "beta")
 ```
 
+# Interpretation/notes/next steps
+
+I believe the test run here is most comparable to the DSS test `DMLfit.multiFactor(BSobj, design = design, formula = ~ treatment + stage)`, which adjusts for lifestage but does not permit/account for an interaction effect between parental treatment and lifestage. 
+
+Applying the above `DSS` model fit to all samples identified 11,356 DMLs. This is more than 10X the number of significant DMLs identified as here, 799! Part of that is probably explained by the difference in # of sites tested (this *MACAU* work required an additional filter to remove invariant sites within treatment groups): when using all samples, 6,337,469 sites tested in `DSS` work; 2,148,546 sites tested in `MACAU` work.
+
+However, the difference may also be explained in part by relatedness effects -- `DSS` may have been identiying some treatment-related DMLs that are actually artifacts of shared parentage (pseudoreplication). I think that DMLs identified in both sets would be the most robust.
+
+Keep in mind, however, that `MACAU` is unable to identify loci for which treatment effect *Differs by stage*, which `DSS` can answer using a `~treatment + stage + treatment:stage` design.
+
+
+
+I also have a concern about the way I've created the relatedness matrix here. Because all offspring were generated using within-treatment crosses (control M x contol F; exposed M x exposed F), by using parent IDs to generate the matrix, I've also *nested* relatedness and treatment. This is visible in the relatedness matrix heatmap, which shows 0 relatedness for all cross-treatment comparisons (i.e. all CxC and ExE comparisons are completely unrelated). The down-stream analysis problem becomes evident when looking at the `h2` values of output DMLs. All are either 0 (no variance explained by relatedness), 1 (all explained by relatedness), or NA. This is a pretty clear indicator of covariate confounding -- the treatment parameter and relatedness matrix are colinear by nature of the experimental design and matrix construction approach.
+
+The fix should be conceptually strightforward, if a little annoying to implement. WGBS data is essentially modified WGS data -- I can use WGBS data with a bisulfite-conversion-aware caller (e.g., `Revelio`) to call SNPs and then generate a relatedness matrix using `GEMMA`, as recommended in the `MACAU` user manual.
 

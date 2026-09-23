@@ -1,0 +1,32 @@
+PLINK v1.90b7 64-bit (16 Jan 2023)
+Options in effect:
+  --allow-extra-chr
+  --double-id
+  --make-rel square
+  --out relatedness
+  --set-missing-var-ids @:#
+  --vcf merged.filtered.vcf.gz
+
+Hostname: raven
+Working directory: /home/shared/8TB_HDD_02/shedurkin/ceasmallr/output/12-snp-calling-BS-Snper/per-sample
+Start time: Tue Sep 22 23:27:03 2026
+
+Random number seed: 1790144823
+253344 MB RAM detected; reserving 126672 MB for main workspace.
+--vcf: relatedness-temporary.bed + relatedness-temporary.bim +
+relatedness-temporary.fam written.
+32311 variants loaded from .bim file.
+32311 missing IDs set.
+32 people (0 males, 0 females, 32 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to relatedness.nosex .
+Using up to 47 threads (change this with --threads).
+Before main variant filters, 32 founders and 0 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.599424.
+32311 variants and 32 people pass filters and QC.
+Note: No phenotypes present.
+Relationship matrix calculation complete.
+Relationship matrix written to relatedness.rel , and IDs written to
+relatedness.rel.id .
+
+End time: Tue Sep 22 23:27:03 2026

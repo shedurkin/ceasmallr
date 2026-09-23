@@ -1,0 +1,35 @@
+FLAG: 1
+refSeqFile = ../data/Cvirginica_v300/Cvirginica_v300.fa.
+bamFileName = ../output/02.10-bismark-deduplication/CF08-CM04-Larvae_dedup.sorted.bam.
+snpFileName = ../output/12-snp-calling-BS-Snper/per-sample/CF08-CM04-Larvae.candidates.txt.
+methCgFileName = ../output/12-snp-calling-BS-Snper/per-sample/CF08-CM04-Larvae.CpG.tab.
+methChgFileName = ../output/12-snp-calling-BS-Snper/per-sample/CF08-CM04-Larvae.CHG.tab.
+methChhFileName = ../output/12-snp-calling-BS-Snper/per-sample/CF08-CM04-Larvae.CHH.tab.
+vQualMin = 15.
+nLayerMax = 1000.
+vSnpRate = 0.100000.
+vSnpPerBase = 0.020000.
+mapqThr = 20.
+Init chrome name-len array completed, total 684741128 bp of 11 chromosomes.
+11 chromes loaded.
+Init chrome name-idx hash table completed.
+Init chrome seq array completed.
+Meth process begins...
+Chrome updated to NC_035780.1!
+Chrome updated to NC_035781.1!
+Chrome updated to NC_035782.1!
+Chrome updated to NC_035783.1!
+Chrome updated to NC_035784.1!
+Chrome updated to NC_035785.1!
+Chrome updated to NC_035786.1!
+Chrome updated to NC_035787.1!
+Chrome updated to NC_035788.1!
+Chrome updated to NC_035789.1!
+Chrome updated to NC_007175.2!
+Meth process ends...
+SNP process begins...
+100000 records have been dealed.
+200000 records have been dealed.
+300000 records have been dealed.
+SNP process ends...
+SNP process completed.

@@ -1,0 +1,118 @@
+FLAG: 1
+refSeqFile = ../data/Cvirginica_v300/Cvirginica_v300.fa.
+bamFileName = ../output/02.10-bismark-deduplication/EF06-EM06-Larvae_dedup.sorted.bam.
+snpFileName = ../output/12-snp-calling-BS-Snper/per-sample/EF06-EM06-Larvae.candidates.txt.
+methCgFileName = ../output/12-snp-calling-BS-Snper/per-sample/EF06-EM06-Larvae.CpG.tab.
+methChgFileName = ../output/12-snp-calling-BS-Snper/per-sample/EF06-EM06-Larvae.CHG.tab.
+methChhFileName = ../output/12-snp-calling-BS-Snper/per-sample/EF06-EM06-Larvae.CHH.tab.
+vQualMin = 15.
+nLayerMax = 1000.
+vSnpRate = 0.100000.
+vSnpPerBase = 0.020000.
+mapqThr = 20.
+Init chrome name-len array completed, total 684741128 bp of 11 chromosomes.
+11 chromes loaded.
+Init chrome name-idx hash table completed.
+Init chrome seq array completed.
+Meth process begins...
+Chrome updated to NC_035780.1!
+500000 records have been dealed.
+Chrome updated to NC_035781.1!
+1000000 records have been dealed.
+1500000 records have been dealed.
+Chrome updated to NC_035782.1!
+2000000 records have been dealed.
+2500000 records have been dealed.
+Chrome updated to NC_035783.1!
+3000000 records have been dealed.
+Chrome updated to NC_035784.1!
+3500000 records have been dealed.
+4000000 records have been dealed.
+4500000 records have been dealed.
+5000000 records have been dealed.
+Chrome updated to NC_035785.1!
+Chrome updated to NC_035786.1!
+5500000 records have been dealed.
+Chrome updated to NC_035787.1!
+6000000 records have been dealed.
+Chrome updated to NC_035788.1!
+6500000 records have been dealed.
+Chrome updated to NC_035789.1!
+7000000 records have been dealed.
+Chrome updated to NC_007175.2!
+Meth process ends...
+SNP process begins...
+100000 records have been dealed.
+200000 records have been dealed.
+300000 records have been dealed.
+400000 records have been dealed.
+500000 records have been dealed.
+600000 records have been dealed.
+700000 records have been dealed.
+800000 records have been dealed.
+900000 records have been dealed.
+1000000 records have been dealed.
+1100000 records have been dealed.
+1200000 records have been dealed.
+1300000 records have been dealed.
+1400000 records have been dealed.
+1500000 records have been dealed.
+1600000 records have been dealed.
+1700000 records have been dealed.
+1800000 records have been dealed.
+1900000 records have been dealed.
+2000000 records have been dealed.
+2100000 records have been dealed.
+2200000 records have been dealed.
+2300000 records have been dealed.
+2400000 records have been dealed.
+2500000 records have been dealed.
+2600000 records have been dealed.
+2700000 records have been dealed.
+2800000 records have been dealed.
+2900000 records have been dealed.
+3000000 records have been dealed.
+3100000 records have been dealed.
+3200000 records have been dealed.
+3300000 records have been dealed.
+3400000 records have been dealed.
+3500000 records have been dealed.
+3600000 records have been dealed.
+3700000 records have been dealed.
+3800000 records have been dealed.
+3900000 records have been dealed.
+4000000 records have been dealed.
+4100000 records have been dealed.
+4200000 records have been dealed.
+4300000 records have been dealed.
+4400000 records have been dealed.
+4500000 records have been dealed.
+4600000 records have been dealed.
+4700000 records have been dealed.
+4800000 records have been dealed.
+4900000 records have been dealed.
+5000000 records have been dealed.
+5100000 records have been dealed.
+5200000 records have been dealed.
+5300000 records have been dealed.
+5400000 records have been dealed.
+5500000 records have been dealed.
+5600000 records have been dealed.
+5700000 records have been dealed.
+5800000 records have been dealed.
+5900000 records have been dealed.
+6000000 records have been dealed.
+6100000 records have been dealed.
+6200000 records have been dealed.
+6300000 records have been dealed.
+6400000 records have been dealed.
+6500000 records have been dealed.
+6600000 records have been dealed.
+6700000 records have been dealed.
+6800000 records have been dealed.
+6900000 records have been dealed.
+7000000 records have been dealed.
+7100000 records have been dealed.
+7200000 records have been dealed.
+SNP process ends...
+SNP process completed.

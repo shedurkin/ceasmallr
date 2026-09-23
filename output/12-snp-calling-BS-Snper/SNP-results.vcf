@@ -1,0 +1,6 @@
+##fileformat=VCFv4.3
+##fileDate= 20260922
+##bssnperVersion=1.1
+##bssnperCommand=--fa ../data/Cvirginica_v300/Cvirginica_v300.fa   --input ../output/12-snp-calling-BS-Snper/merged_offspring_dedup.sorted.bam --output ../output/12-snp-calling-BS-Snper/SNP-candidates.txt --methcg ../output/12-snp-calling-BS-Snper/CpG-meth-info.tab --methchg ../output/12-snp-calling-BS-Snper/CHG-meth-info.tab --methchh ../output/12-snp-calling-BS-Snper/CHH-meth-info.tab --minhetfreq  0.1 --minhomfreq  0.85 --minquali 15 --mincover 5 --maxcover 1000 --minread2 2 --errorate 0.02 --mapvalue 20
+##reference=file://../data/Cvirginica_v300/Cvirginica_v300.fa
+##Bisulfite=directional>

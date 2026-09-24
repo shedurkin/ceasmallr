@@ -575,10 +575,10 @@ treatment. This is visible in the relatedness matrix heatmap, which
 shows 0 relatedness for all cross-treatment comparisons (i.e. all CxC
 and ExE comparisons are completely unrelated). The down-stream analysis
 problem becomes evident when looking at the `h2` values of output DMLs.
-All are either 0 (no variance explained by relatedness), 1 (all
-explained by relatedness), or NA. This is a pretty clear indicator of
-covariate confounding – the treatment parameter and relatedness matrix
-are colinear by nature of the experimental design and matrix
+Almost all (740/799, or ~93%) are either 0 (no variance explained by 
+relatedness), 1 (allexplained by relatedness), or NA. This is a pretty clear 
+indicator of covariate confounding – the treatment parameter and relatedness 
+matrix are colinear by nature of the experimental design and matrix
 construction approach.
 
 The fix should be conceptually strightforward, if a little annoying to

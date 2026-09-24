@@ -16,6 +16,8 @@ Cvirginica_v300.fa
 
 data/bismark-methyl-extraction/*.cov.gz
 data/bismark-methyl-extraction-parents/*.cov.gz
+data/Cvirginica_v300_bisulfite.tar.gz
+data/Cvirginica_v300/*
 
 output/10-diff-methyl-DSS/*.rds
 output/10-diff-methyl-DSS/*.tsv

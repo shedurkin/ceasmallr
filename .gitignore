@@ -28,6 +28,7 @@ output/10-diff-methyl-DSS_remsamples/*.tsv.gz
 output/10.1-diff-methyl-DSS-parents/*.rds
 output/10.1-diff-methyl-DSS-parents/*.tsv
 output/11-diff-methyl-MACAU/*.tsv
+output/11.1-diff-methyl-MACAU-full-relat/*.tsv
 output/12-snp-calling-BS-Snper/*meth-info.tab
 output/12-snp-calling-BS-Snper/SNP-candidates.txt
 output/12-snp-calling-BS-Snper/per-sample/*.vcf

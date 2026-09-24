@@ -163,7 +163,7 @@ Per-site mixed-model fitting is *very* slow across whole genome. As in the DSS w
 ```{r test-run-filter}
 # Keeps all samples but randomly thins loci genome-wide.
 # set test_run to FALSE for full-data runs
-test_run  <- TRUE
+test_run  <- FALSE
 test_frac <- 0.0002      # keep 2% of loci
 
 if (test_run) {
@@ -196,9 +196,10 @@ cat("Count matrices:", nrow(meth_mat), "loci x", ncol(meth_mat), "samples\n")
 
 # Load relatedness matrix
 
+This time, the relatedness matrix was generated using SNP variants called from the samples' WGBS data using `BS-Snper`
 ```{r}
 # Genomic relatedness matrix (GRM) from BS-Snper SNPs, via PLINK --make-rel square
-rel_dir <- "../output/12-snp-calling-BS-Snper"
+rel_dir <- "../output/12-snp-calling-BS-Snper/per-sample"
 
 K_geno <- as.matrix(read.table(file.path(rel_dir, "relatedness.rel")))
 # .rel.id has FID and IID columns (plus a "#FID IID" header in PLINK 2); IID is the sample name
@@ -399,17 +400,7 @@ save_bed(dml, "../output/11.1-diff-methyl-MACAU-full-relat/treatment_DML.bed", "
 
 # Interpretation/notes/next steps
 
-I believe the test run here is most comparable to the DSS test `DMLfit.multiFactor(BSobj, design = design, formula = ~ treatment + stage)`, which adjusts for lifestage but does not permit/account for an interaction effect between parental treatment and lifestage. 
-
-Applying the above `DSS` model fit to all samples identified 11,356 DMLs. This is more than 10X the number of significant DMLs identified as here, 799! Part of that is probably explained by the difference in # of sites tested (this *MACAU* work required an additional filter to remove invariant sites within treatment groups): when using all samples, 6,337,469 sites tested in `DSS` work; 2,148,546 sites tested in `MACAU` work.
-
-However, the difference may also be explained in part by relatedness effects -- `DSS` may have been identiying some treatment-related DMLs that are actually artifacts of shared parentage (pseudoreplication). I think that DMLs identified in both sets would be the most robust.
-
-Keep in mind, however, that `MACAU` is unable to identify loci for which treatment effect *Differs by stage*, which `DSS` can answer using a `~treatment + stage + treatment:stage` design.
+Using a SNP-based relatedness matrix produced very similar (if slightly more conservative) results to the run using a parent-id-based matrix (see [11-diff-methyl-MACAU.Rmd](./11-diff-methyl-MACAU.Rmd)) -- 624 DMLs using SNP-based, 799 DMLs using ID-based. On top of just DML counts, both runs produced nearly identical estimability of heritability. Using an ID-based matrix, roughly 7% (59/799) of DMLs had estimable heritability (`h2` =/ 0,1, or NA), and here we found the same proportion -- 44/624, or ~7% of DMLs had `h2` values =/ 0,1, or NA. These minor differences suggest that collinearity in the relatedness-treatment is either not the source of `h2` problems OR that using a SNP-based approach didn't sufficiently address the collinearity (also plausible, since it's essentially part of the experimental design, with offspring produced from either exclusively Control or exclusively Exposed parents).
 
 
-
-I also have a concern about the way I've created the relatedness matrix here. Because all offspring were generated using within-treatment crosses (control M x contol F; exposed M x exposed F), by using parent IDs to generate the matrix, I've also *nested* relatedness and treatment. This is visible in the relatedness matrix heatmap, which shows 0 relatedness for all cross-treatment comparisons (i.e. all CxC and ExE comparisons are completely unrelated). The down-stream analysis problem becomes evident when looking at the `h2` values of output DMLs. All are either 0 (no variance explained by relatedness), 1 (all explained by relatedness), or NA. This is a pretty clear indicator of covariate confounding -- the treatment parameter and relatedness matrix are colinear by nature of the experimental design and matrix construction approach.
-
-The fix should be conceptually strightforward, if a little annoying to implement. WGBS data is essentially modified WGS data -- I can use WGBS data with a bisulfite-conversion-aware caller (e.g., `Revelio`) to call SNPs and then generate a relatedness matrix using `GEMMA`, as recommended in the `MACAU` user manual.
 

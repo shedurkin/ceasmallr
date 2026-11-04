@@ -1,0 +1,27 @@
+Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
+5	:	1793767905.859	  3459.574	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/22F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+8	:	1793767905.901	  3554.445	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/31M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+7	:	1793767905.870	  3565.397	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/29F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+9	:	1793767905.907	  4354.069	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/35F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+3	:	1793767905.847	  4483.795	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/16F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+1	:	1793767905.794	  4915.096	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/12M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+4	:	1793767905.853	  4942.873	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/19F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+2	:	1793767905.798	  5821.611	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/13M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+6	:	1793767905.864	  6724.314	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/23M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+11	:	1793767905.918	  8568.654	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/39F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+10	:	1793767905.912	  8962.944	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/36F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+16	:	1793767905.942	  9421.172	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/50F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+25	:	1793772389.648	  5003.713	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/7M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+26	:	1793772820.931	  4915.437	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/9M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+20	:	1793767905.991	 10077.713	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/59M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+17	:	1793767905.966	 10155.079	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/52F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+13	:	1793767905.929	 10157.542	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/41F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+18	:	1793767905.971	 10423.472	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/53F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+22	:	1793771460.376	  7013.210	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/6M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+12	:	1793767905.924	 10732.543	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/3F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+23	:	1793771471.271	  7335.673	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/76F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+19	:	1793767905.975	 11041.726	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/54F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+15	:	1793767905.939	 11061.414	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/48M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+21	:	1793771366.148	  7898.042	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/64M_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+24	:	1793772260.706	  7020.095	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/77F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam
+14	:	1793767905.934	 11780.076	0	0	0	0	run_bssnper ../data/bismark-methyl-extraction-parents/44F_R1_val_1_bismark_bt2_pe.deduplicated.sorted.bam

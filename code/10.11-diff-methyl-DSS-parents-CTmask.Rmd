@@ -1,5 +1,5 @@
 ---
-title: "10.1-diff-methyl-DSS-parents"
+title: "10.11-diff-methyl-DSS-parents-CTmask"
 author: "Kathleen Durkin"
 date: "`r Sys.Date()`"
 always_allow_html: true
@@ -37,7 +37,7 @@ As in `10-diff-methyl-DSS.Rmd`, will need to run this .Rmd file from the identic
 
 apptainer exec --bind /gscratch:/gscratch \
  /gscratch/srlab/kdurkin1/srlab-R4.4-bioinformatics-container-703094b.sif \
-  bash -c 'source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh && conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss && Rscript -e "rmarkdown::render(\"10.1-diff-methyl-DSS-parents.Rmd\")"'
+  bash -c 'source /srlab/programs/miniforge3-24.7.1-0/etc/profile.d/conda.sh && conda activate /gscratch/srlab/kdurkin1/.conda/envs/dss && Rscript -e "rmarkdown::render(\"10.11-diff-methyl-DSS-parents-CTmask.Rmd\")"'
 ```
 
 ```{r setup, message=FALSE, warning=FALSE}
@@ -145,7 +145,7 @@ file.list  <- list.files("../data/bismark-methyl-extraction-parents", pattern = 
 
 # format sample IDs
 sample.ids <- basename(file.list) %>%
-  str_replace("_R1_val_1_bismark_bt2_pe\\..deduplicated\\.CT_masked\\.bismark\\.cov\\.gz$", "")
+  str_replace("_R1_val_1_bismark_bt2_pe\\.deduplicated\\.CT_masked\\.bismark\\.cov\\.gz$", "")
 
 # Grab treatment and sex info
 # Sex info is contained within Sample IDs (M/F)
@@ -290,11 +290,11 @@ save_bed <- function(df, path, score_col) {
 }
 
 # Site-level tables
-write_tsv(test_trt,  "../output/10.1-diff-methyl-DSS-parents/multifactor_treatment_test.tsv")
-write_tsv(test_intx, "../output/10.1-diff-methyl-DSS-parents/multifactor_interaction_test.tsv")
+write_tsv(test_trt,  "../output/10.11-diff-methyl-DSS-parents-CTmask/multifactor_treatment_test.tsv")
+write_tsv(test_intx, "../output/10.11-diff-methyl-DSS-parents-CTmask/multifactor_interaction_test.tsv")
 
 # Region-level BEDs (multifactor DMR uses `areaStat` as region-level test statistic)
-save_bed(dmr_trt, "../output/10.1-diff-methyl-DSS-parents/treatment_DMR.bed", "areaStat")
+save_bed(dmr_trt, "../output/10.11-diff-methyl-DSS-parents-CTmask/treatment_DMR.bed", "areaStat")
 ```
 
 # Two-group smoothed test within each sex
@@ -305,6 +305,7 @@ It also produces effect estimates of the same type as `methylKit` (% methylation
 
 WARNING: Both the sex-specific DMLtest() runs are **very** memory-intensive. I've needed to up the node request to ~300G just to successfully complete them, and it takes a while to finish. 
 ```{r per-sex-smoothed}
+
 
 run_sex <- function(sex_label) {
   s_idx  <- which(meta$sex == sex_label)
@@ -318,7 +319,17 @@ run_sex <- function(sex_label) {
                   minlen = 50, minCG = 3, dis.merge = 100, pct.sig = 0.5)
   )
   # write per-sex results to disk immediately, so a later crash can't lose them
-  saveRDS(dml, file.path("../output/10.1-diff-methyl-DSS-parents", paste0(sex_label, "_DMLtest.rds")))
+  saveRDS(dml, file.path("../output/10.11-diff-methyl-DSS-parents-CTmask", paste0(sex_label, "_DMLtest.rds")))
+  
+  # save set of loci actually tested in this sex (non-NA statistic), BED with 0-based start
+  tested_s <- as.data.frame(dml) %>%
+    filter(!is.na(stat)) %>%
+    transmute(chr = as.character(chr), start = pos - 1L, end = pos)
+  write_tsv(tested_s, file.path("../output/10.11-diff-methyl-DSS-parents-CTmask",
+                                paste0(tolower(sex_label), "_tested_loci.bed.gz")), col_names = FALSE)
+  cat(sex_label, "tested loci:", nrow(tested_s), "\n")
+  rm(tested_s)
+  
   rm(dml, BS_s); gc()
   out
 }
@@ -334,30 +345,28 @@ cat("Larvae: DMLs =", nrow(res_male$dml), " DMRs =", nrow(res_male$dmr), "\n")
 
 ```{r save-outputs2}
 # Per-sex DML BEDs (diff = mu1 - mu2 = exposed - control)
-save_bed(res_fem$dml, "../output/10.1-diff-methyl-DSS-parents/female_DML.bed", "diff")
-save_bed(res_male$dml, "../output/10.1-diff-methyl-DSS-parents/male_DML.bed", "diff")
+save_bed(res_fem$dml, "../output/10.11-diff-methyl-DSS-parents-CTmask/female_DML.bed", "diff")
+save_bed(res_male$dml, "../output/10.11-diff-methyl-DSS-parents-CTmask/male_DML.bed", "diff")
 
 # Region-level BEDs (diff.Methy is exposed - control at the region level)
-save_bed(res_fem$dmr, "../output/10.1-diff-methyl-DSS-parents/female_DMR.bed", "diff.Methy")
-save_bed(res_male$dmr, "../output/10.1-diff-methyl-DSS-parents/male_DMR.bed", "diff.Methy")
+save_bed(res_fem$dmr, "../output/10.11-diff-methyl-DSS-parents-CTmask/female_DMR.bed", "diff.Methy")
+save_bed(res_male$dmr, "../output/10.11-diff-methyl-DSS-parents-CTmask/male_DMR.bed", "diff.Methy")
 ```
 
 
 ## Directional concordance with parental gamete DMLs -- UPDATED parental DMLs
 
-Same check as in `10-diff-methyl-DSS`, but this time using parental DMLs derived using DSS
-
 ```{r parental-check-load}
-zyg_dmls <- read_tsv("../output/10-diff-methyl-DSS/zygote_DML.bed",
+zyg_dmls <- read_tsv("../output/10.01-diff-methyl-DSS-CTmask/zygote_DML.bed",
                   col_names = c("chr", "start", "end", "zyg_diff"))
 
-lar_dmls <- read_tsv("../output/10-diff-methyl-DSS/larvae_DML.bed",
+lar_dmls <- read_tsv("../output/10.01-diff-methyl-DSS-CTmask/larvae_DML.bed",
                   col_names = c("chr", "start", "end", "lar_diff"))
 
-sperm <- read_tsv("../output/10.1-diff-methyl-DSS-parents/male_DML.bed",
+sperm <- read_tsv("../output/10.11-diff-methyl-DSS-parents-CTmask/male_DML.bed",
                   col_names = c("chr", "start", "end", "par_diff"))
 
-egg <- read_tsv("../output/10.1-diff-methyl-DSS-parents/female_DML.bed",
+egg <- read_tsv("../output/10.11-diff-methyl-DSS-parents-CTmask/female_DML.bed",
                   col_names = c("chr", "start", "end", "par_diff"))
 ```
 
@@ -390,11 +399,11 @@ summarise(shared_lar_sperm, n_shared = n(), n_concordant = sum(concordant),
 ```
 
 ```{r}
-write_tsv(dplyr::select(shared_zyg_egg, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_zygote_egg_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_egg, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_larvae_egg_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_zyg_egg, -concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_zygote_egg_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_lar_egg, -concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_larvae_egg_DML.bed", col_names=TRUE)
 
-write_tsv(dplyr::select(shared_zyg_sperm, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_zygote_sperm_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_sperm, -concordant), "../output/10.1-diff-methyl-DSS-parents/shared_larvae_sperm_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_zyg_sperm, -concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_zygote_sperm_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_lar_sperm, -concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_larvae_sperm_DML.bed", col_names=TRUE)
 
 ```
 
@@ -435,11 +444,11 @@ summarise(shared_sperm_offspring, n_shared = n(), pct_zyg_concordant = mean(zyg_
 ```
 
 ```{r}
-write_tsv(dplyr::select(shared_zyg_parents, -zyg_egg_concordant, -zyg_sperm_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_zygote_parents_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_parents, -lar_egg_concordant, -lar_sperm_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_larvae_parents_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_zyg_parents, -zyg_egg_concordant, -zyg_sperm_concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_zygote_parents_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_lar_parents, -lar_egg_concordant, -lar_sperm_concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_larvae_parents_DML.bed", col_names=TRUE)
 
-write_tsv(dplyr::select(shared_egg_offspring, -zyg_egg_concordant, -lar_egg_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_egg_offspring_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_sperm_offspring, -zyg_sperm_concordant, -lar_sperm_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_sperm_offspring_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_egg_offspring, -zyg_egg_concordant, -lar_egg_concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_egg_offspring_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_sperm_offspring, -zyg_sperm_concordant, -lar_sperm_concordant), "../output/10.11-diff-methyl-DSS-parents-CTmask/shared_sperm_offspring_DML.bed", col_names=TRUE)
 ```
 
 Finally, let's do some within-group comparisons for DML overlap -- zygote v. larvae, and egg v. sperm. 

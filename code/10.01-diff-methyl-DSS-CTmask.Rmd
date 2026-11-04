@@ -128,8 +128,8 @@ file.list  <- list.files("../data/bismark-methyl-extraction", pattern = "\\.CT_m
 
 # As in 06.2, drop the low-yield libraries (<100M Cs)
 # BUT, could keep all samples and let DSS handle the coverage differences -- come back to later.
-# drop <- c("CF01-CM01-Zygote", "CF08-CM04-Larvae", "CF08-CM05-Larvae", "EF04-EM04-Zygote", "EF05-EM05-Zygote")
-# file.list <- file.list[!str_detect(basename(file.list), str_c(drop, collapse = "|"))]
+drop <- c("CF01-CM01-Zygote", "CF08-CM04-Larvae", "CF08-CM05-Larvae", "EF04-EM04-Zygote", "EF05-EM05-Zygote")
+file.list <- file.list[!str_detect(basename(file.list), str_c(drop, collapse = "|"))]
 
 # format sample IDs
 sample.ids <- basename(file.list) %>%
@@ -324,6 +324,15 @@ run_stage <- function(stage_label) {
   saveRDS(dml, file.path("../output/10.01-diff-methyl-DSS-CTmask", paste0(stage_label, "_DMLtest.rds")))
   write_tsv(as.data.frame(dml), file.path("../output/10.01-diff-methyl-DSS-CTmask", paste0(stage_label, "_DMLtest.tsv.gz")))
   
+    # save set of loci actually tested in this stage (non-NA statistic), BED with 0-based start
+  tested_s <- as.data.frame(dml) %>%
+    filter(!is.na(stat)) %>%
+    transmute(chr = as.character(chr), start = pos - 1L, end = pos)
+  write_tsv(tested_s, file.path("../output/10.01-diff-methyl-DSS-CTmask",
+                                paste0(tolower(stage_label), "_tested_loci.bed.gz")), col_names = FALSE)
+  cat(stage_label, "tested loci:", nrow(tested_s), "\n")
+  rm(tested_s)
+  
   rm(dml, BS_s); gc()
   out
 }
@@ -382,65 +391,3 @@ save_bed(res_lar$dml, "../output/10.01-diff-methyl-DSS-CTmask/larvae_DML.bed", "
 save_bed(res_zyg$dmr, "../output/10.01-diff-methyl-DSS-CTmask/zygote_DMR.bed", "diff.Methy")
 save_bed(res_lar$dmr, "../output/10.01-diff-methyl-DSS-CTmask/larvae_DMR.bed", "diff.Methy")
 ```
-
-
-## Directional concordance with parental gamete DMLs
-
-`07.2` only tested *positional* overlap, but we're also interested in directional agreement (hyper/hypo). 
-
-As a priliminary check for shared signal, read in the parental beds (sperm/egg DMLs, column 5 = parental methylation diff), join to the offspring DMLs on `chr` + `pos`, and compare the sign of the difference. 
-
-```{r parental-check-load}
-zyg_dmls <- read_tsv("../output/10.01-diff-methyl-DSS-CTmask/zygote_DML.bed",
-                  col_names = c("chr", "start", "end", "zyg_diff"))
-
-lar_dmls <- read_tsv("../output/10.01-diff-methyl-DSS-CTmask/larvae_DML.bed",
-                  col_names = c("chr", "start", "end", "lar_diff"))
-
-sperm <- read_tsv("../data/adult_male_dml.bed",
-                  col_names = c("chr", "start", "end", "strand", "par_diff")) %>%
-  transmute(chr, start, end = end - 1, par_diff = par_diff/100)
-
-egg <- read_tsv("../data/adult_female_dml.bed",
-                  col_names = c("chr", "start", "end", "strand", "par_diff")) %>%
-  transmute(chr, start, end = end - 1, par_diff = par_diff/100)
-```
-
-```{r maternal-checks}
-shared_zyg_egg <- inner_join(zyg_dmls, egg, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(zyg_diff) == sign(par_diff))
-
-shared_lar_egg<- inner_join(lar_dmls, egg, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(lar_diff) == sign(par_diff))
-
-summarise(shared_zyg_egg, n_shared = n(), n_concordant = sum(concordant),
-          pct_concordant = mean(concordant) * 100)
-
-summarise(shared_lar_egg, n_shared = n(), n_concordant = sum(concordant),
-          pct_concordant = mean(concordant) * 100)
-```
-
-```{r paternal-checks}
-shared_zyg_sperm <- inner_join(zyg_dmls, sperm, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(zyg_diff) == sign(par_diff))
-
-shared_lar_sperm <- inner_join(lar_dmls, sperm, by = c("chr", "start", "end")) %>%
-  mutate(concordant = sign(lar_diff) == sign(par_diff))
-
-summarise(shared_zyg_sperm, n_shared = n(), n_concordant = sum(concordant),
-          pct_concordant = mean(concordant) * 100)
-
-summarise(shared_lar_sperm, n_shared = n(), n_concordant = sum(concordant),
-          pct_concordant = mean(concordant) * 100)
-```
-
-```{r}
-write_tsv(dplyr::select(shared_zyg_egg, -concordant), "../output/10.01-diff-methyl-DSS-CTmask/shared_zygote_egg_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_egg, -concordant), "../output/10.01-diff-methyl-DSS-CTmask/shared_larvae_egg_DML.bed", col_names=TRUE)
-
-write_tsv(dplyr::select(shared_zyg_sperm, -concordant), "../output/10.01-diff-methyl-DSS-CTmask/shared_zygote_sperm_DML.bed", col_names=TRUE)
-write_tsv(dplyr::select(shared_lar_sperm, -concordant), "../output/10.01-diff-methyl-DSS-CTmask/shared_larvae_sperm_DML.bed", col_names=TRUE)
-
-```
-
-For a real answer, however, we'd want to (a) re-evaluate parental differential methylation signal using DSS as well (instead of relying on the DMLs that were previously identified by Venkataraman et al using `methylKit`), and (b) test whether parent-offspring DML overlap exceeds chance ("enriched")

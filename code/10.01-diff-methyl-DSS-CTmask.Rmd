@@ -100,7 +100,7 @@ We should have N=32 (n=15 ControlxControl crosses, n=17 ExposedxExposed crosses)
 We've already called SNPs using `BS-Snper`, and saved a file of all C/T (and G/A, from the opposite strand) SNPs in all samples. 
 
 For each Bismark .cov file, remove every CpG site which overlaps a C/T SNP. Do this using `intersectBed`, to keep .cov rows not present in the CT file
-```{r, engine='bash'}
+```{r, engine='bash', eval=FALSE}
 cd  ../data/bismark-methyl-extraction
 
 for file in *.bismark.cov.gz

@@ -378,4 +378,64 @@ write_tsv(dplyr::select(shared_lar_sperm, -concordant), "../output/10.1-diff-met
 
 ```
 
-NExt I want to test whether parent-offspring DML overlap exceeds chance ("enriched")
+
+
+I also want to check for more broadly-overlapping DMLs:
+```{r cross-class-shared}
+shared_zyg_parents <- inner_join(shared_zyg_egg, shared_zyg_sperm, by = c("chr", "start", "end", "zyg_diff")) %>%
+  rename(egg_diff = par_diff.x,
+         zyg_egg_concordant = concordant.x,
+         sperm_diff = par_diff.y,
+         zyg_sperm_concordant = concordant.y)
+
+shared_lar_parents <- inner_join(shared_lar_egg, shared_lar_sperm, by = c("chr", "start", "end", "lar_diff")) %>%
+  rename(egg_diff = par_diff.x,
+         lar_egg_concordant = concordant.x,
+         sperm_diff = par_diff.y,
+         lar_sperm_concordant = concordant.y)
+
+shared_egg_offspring <- inner_join(shared_zyg_egg, shared_lar_egg, by = c("chr", "start", "end", "par_diff")) %>%
+  rename(egg_diff = par_diff,
+         zyg_egg_concordant = concordant.x,
+         lar_egg_concordant = concordant.y)
+
+shared_sperm_offspring <- inner_join(shared_zyg_sperm, shared_lar_sperm, by = c("chr", "start", "end", "par_diff")) %>%
+  rename(sperm_diff = par_diff,
+         zyg_sperm_concordant = concordant.x,
+         lar_sperm_concordant = concordant.y)
+
+
+summarise(shared_zyg_parents, n_shared = n(), pct_egg_concordant = mean(zyg_egg_concordant)*100, pct_sperm_concordant = mean(zyg_sperm_concordant*100))
+
+summarise(shared_lar_parents, n_shared = n(), pct_egg_concordant = mean(lar_egg_concordant)*100, pct_sperm_concordant = mean(lar_sperm_concordant*100))
+
+summarise(shared_egg_offspring, n_shared = n(), pct_zyg_concordant = mean(zyg_egg_concordant)*100, pct_lar_concordant = mean(lar_egg_concordant*100))
+
+summarise(shared_sperm_offspring, n_shared = n(), pct_zyg_concordant = mean(zyg_sperm_concordant)*100, pct_lar_concordant = mean(lar_sperm_concordant*100))
+```
+
+```{r}
+write_tsv(dplyr::select(shared_zyg_parents, -zyg_egg_concordant, -zyg_sperm_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_zygote_parents_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_lar_parents, -lar_egg_concordant, -lar_sperm_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_larvae_parents_DML.bed", col_names=TRUE)
+
+write_tsv(dplyr::select(shared_egg_offspring, -zyg_egg_concordant, -lar_egg_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_egg_offspring_DML.bed", col_names=TRUE)
+write_tsv(dplyr::select(shared_sperm_offspring, -zyg_sperm_concordant, -lar_sperm_concordant), "../output/10.1-diff-methyl-DSS-parents/shared_sperm_offspring_DML.bed", col_names=TRUE)
+```
+
+Finally, let's do some within-group comparisons for DML overlap -- zygote v. larvae, and egg v. sperm. 
+```{r within-group}
+shared_zyg_lar <- inner_join(zyg_dmls, lar_dmls, by = c("chr", "start", "end")) %>%
+  mutate(concordant = sign(zyg_diff) == sign(lar_diff))
+
+shared_egg_sperm <- inner_join(egg, sperm, by = c("chr", "start", "end")) %>%
+  rename(egg_diff = par_diff.x, sperm_diff = par_diff.y) %>%
+  mutate(concordant = sign(egg_diff) == sign(sperm_diff))
+
+
+summarise(shared_zyg_lar, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+
+summarise(shared_egg_sperm, n_shared = n(), n_concordant = sum(concordant),
+          pct_concordant = mean(concordant) * 100)
+```
+

@@ -174,7 +174,7 @@ I'll need to mask C->T SNPs before methylation analysis, so save file of just C/
 Note, however, that this will actually mean masking both C->T SNPs *and* G->A SNPs, to account for strandedness (a C->T SNP on the - strand would look like a G-> SNP on the + strand)
 
 ```{r, engine='bash'}
-cd ../output/12-snp-calling-BS-Snper-parents/per-sample
+cd ../output/12-snp-calling-BS-Snper/per-sample
 
 for file in *.vcf
 do
@@ -194,7 +194,7 @@ From these per-sample files, combine into single BED file of all positions to ma
 
 Basically just need to shift from the .vcf file 1-based position to .bed file 0-based, then sort by chromosome/start position
 ```{r, engine='bash'}
-cd ../output/12-snp-calling-BS-Snper-parents/per-sample
+cd ../output/12-snp-calling-BS-Snper/per-sample
 
 cat *_CT_GA_SNPs.tab \
 | awk 'BEGIN{OFS="\t"}{print $1,$2-1,$2}' \

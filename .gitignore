@@ -39,3 +39,5 @@ output/12.1-snp-calling-BS-Snper-parents/SNP-candidates.txt
 output/12.1-snp-calling-BS-Snper-parents/per-sample/*.vcf
 output/12.1-snp-calling-BS-Snper-parents/per-sample/*.vcf.gz
 output/12.1-snp-calling-BS-Snper-parents/per-sample/*meth-info.tab
+output/12.1-snp-calling-BS-Snper-parents/per-sample/*_SNPs.tab
+output/12.1-snp-calling-BS-Snper-parents/per-sample/all_CT_GA_SNPs.bed

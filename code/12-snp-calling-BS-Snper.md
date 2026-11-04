@@ -1,14 +1,15 @@
 12-snp-calling-BS-Snper
 ================
 Kathleen Durkin
-2026-09-23
+2026-11-04
 
 - [1 Load libraries](#1-load-libraries)
 - [2 Download all sample BAM files](#2-download-all-sample-bam-files)
 - [3 Merge samples](#3-merge-samples)
 - [4 Identify SNPs across samples](#4-identify-snps-across-samples)
 - [5 Identify SNPs per-sample](#5-identify-snps-per-sample)
-- [6 Merge vcf files](#6-merge-vcf-files)
+- [6 Isolate C-\>T SNPs](#6-isolate-c-t-snps)
+- [7 Merge vcf files](#7-merge-vcf-files)
 
 During my first attempt using `MACAU` (`11-diff-methyl-MACAU`), I
 realized that generating the sample relatedness matrix from parent IDs
@@ -174,7 +175,59 @@ export -f run_bssnper
 ls ../output/02.10-bismark-deduplication/*_dedup.sorted.bam | parallel -j 20 --joblog ../output/12-snp-calling-BS-Snper/per-sample/parallel.log run_bssnper {}
 ```
 
-# 6 Merge vcf files
+# 6 Isolate C-\>T SNPs
+
+I’ll need to mask C-\>T SNPs before methylation analysis, so save file
+of just C/T SNPs for each sample.
+
+Note, however, that this will actually mean masking both C-\>T SNPs
+*and* G-\>A SNPs, to account for strandedness (a C-\>T SNP on the -
+strand would look like a G-\> SNP on the + strand)
+
+``` bash
+cd ../output/12-snp-calling-BS-Snper-parents/per-sample
+
+for file in *.vcf
+do
+  # grep -v "^#" skips the header lines
+  # the awk selects only lines with either a C/T or G/A in columns 4/5
+  grep -v "^#" ${file} \
+  | awk -F'\t' '($4=="C" && $5=="T") || ($4=="G" && $5=="A")' \
+  > ${file}_CT_GA_SNPs.tab
+  
+  # check files
+  head ${file}_CT_GA_SNPs.tab
+  wc -l ${file}_CT_GA_SNPs.tab
+done
+```
+
+    ## bash: line 1: cd: ../output/12-snp-calling-BS-Snper-parents/per-sample: No such file or directory
+    ## grep: *.vcf: No such file or directory
+    ## 0 *.vcf_CT_GA_SNPs.tab
+
+From these per-sample files, combine into single BED file of all
+positions to mask
+
+Basically just need to shift from the .vcf file 1-based position to .bed
+file 0-based, then sort by chromosome/start position
+
+``` bash
+cd ../output/12-snp-calling-BS-Snper-parents/per-sample
+
+cat *_CT_GA_SNPs.tab \
+| awk 'BEGIN{OFS="\t"}{print $1,$2-1,$2}' \
+| sort -k1,1 -k2,2n | uniq \
+> all_CT_GA_SNPs.bed
+
+# Check
+head all_CT_GA_SNPs.bed
+wc -l all_CT_GA_SNPs.bed
+```
+
+    ## bash: line 1: cd: ../output/12-snp-calling-BS-Snper-parents/per-sample: No such file or directory
+    ## 0 all_CT_GA_SNPs.bed
+
+# 7 Merge vcf files
 
 Now that I have a variant file for each sample, combine into single file
 for conversion to relatedness matrix
@@ -262,7 +315,7 @@ pheatmap(rel,
          main = "Genomic relatedness (PLINK --make-rel)")
 ```
 
-![](12-snp-calling-BS-Snper_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](12-snp-calling-BS-Snper_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Looks good! Half-sibs are grouped together, as expected, and grouping is
 associated with neither treatment nor stage, which is also great! Only

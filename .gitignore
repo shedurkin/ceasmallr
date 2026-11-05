@@ -25,8 +25,13 @@ output/10-diff-methyl-DSS/*.tsv.gz
 output/10-diff-methyl-DSS_remsamples/*.rds
 output/10-diff-methyl-DSS_remsamples/*.tsv
 output/10-diff-methyl-DSS_remsamples/*.tsv.gz
+output/10.01-diff-methyl-DSS-CTmask/*.rds
+output/10.01-diff-methyl-DSS-CTmask/*.tsv
+output/10.01-diff-methyl-DSS-CTmask/*.tsv.gz
 output/10.1-diff-methyl-DSS-parents/*.rds
 output/10.1-diff-methyl-DSS-parents/*.tsv
+output/10.11-diff-methyl-DSS-parents-CTmask/*.rds
+output/10.11-diff-methyl-DSS-parents-CTmask/*.tsv
 output/11-diff-methyl-MACAU/*.tsv
 output/11.1-diff-methyl-MACAU-full-relat/*.tsv
 output/12-snp-calling-BS-Snper/*meth-info.tab

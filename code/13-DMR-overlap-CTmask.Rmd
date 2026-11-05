@@ -1,0 +1,268 @@
+---
+title: "13-DMR-overlap-CTmask"
+author: "Kathleen Durkin"
+date: "`r Sys.Date()`"
+always_allow_html: true
+output: 
+  github_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    html_preview: true 
+  bookdown::html_document2:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: show
+    code_download: true
+---
+
+In `10.01-diff-methyl-DSS-CTmask` and `10.11-diff-methyl-DSS-parents-CTmask` we identified DMRs (based on parental OA exposure vs. control) in the offspring and parental gametes, after masking C/T SNPs. In those two files I only checked for parent-offspring overlap at the DML-level (single CpGs position matches). However, I also want to check for overlap at the *region* level, i.e. DMRs.
+
+Since a DMR is a region, two DMRs could technically "overlap" by a single base pair, which isn't very meaningful. For now I'll define an overlap using the same criteria DSS uses to call DMRs: (`callDMR(minlen = 50, minCG = 3)`):
+
+- minimum overlap of **>= 50bp**, and
+- overlap must contain **>= 3 CpG sites**
+
+For the CpG count, I'll only include CpGs that were tested in *both* the offspring stage and the parental sex being compared (i.e., CpGs that could have contributed to both DMRs).
+
+NOTE: Because the BSseq objects were built with `strandCollapse = FALSE`, the two cytosines of a CpG dinucleotide (+ and - strand) are separate loci. DSS's `minCG` counts these loci, not dinucleotides, so I'm doing the same here to keep the overlap definition identical to the DMR definition. In practice, ">= 3 CpGs" could be as few as 2 CpG dinucleotides.
+
+Inputs:
+
+- Per-stage/per-sex DMRs from the smoothed two-group `DMLtest()` (score column = `diff.Methy`, exposed - control):
+  - `../output/10.01-diff-methyl-DSS-CTmask/[zygote/larvae]_DMR.bed`
+  - `../output/10.11-diff-methyl-DSS-parents-CTmask/[female/male]_DMR.bed`
+- Tested loci (used to count CpGs within overlaps):
+  - `../output/10.01-diff-methyl-DSS-CTmask/tested_loci.bed.gz`
+  - `../output/10.11-diff-methyl-DSS-parents-CTmask/[female/male]_tested_loci.bed.gz`
+
+Note on coordinates: `callDMR()` reports `start`/`end` as the positions of the first/last CpG in the region (1-based, inclusive), and `save_bed()` in `10.01`/`10.11` wrote those as-is. The tested-loci files, on the other hand, are 0-based BEDs (`start = pos - 1`, `end = pos`), so the CpG position is the `end` column. I'll read everything into 1-based, closed `GRanges` to keep this consistent.
+
+# Setup
+
+```{r setup, message=FALSE, warning=FALSE}
+# Install if needed:
+# if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install("GenomicRanges")
+
+library(GenomicRanges)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(stringr)
+library(tibble)
+library(ggplot2)
+
+# Overlap criteria (same as DSS DMR definition)
+min_len <- 50
+min_cg  <- 3
+```
+
+# Load DMRs
+
+```{r}
+# Read a DMR BED (chr, start, end, score) into GRanges
+# start/end are first/last CpG positions (1-based)
+read_dmr <- function(path) {
+  # Only use file if not empty (sample had DMRs identified)
+  if (!file.exists(path) || file.size(path) == 0) return(GRanges())
+  #read in
+  df <- read_tsv(path, col_names = c("chr", "start", "end", "score"),
+                 col_types = "cddd")
+  GRanges(seqnames = df$chr,
+          ranges   = IRanges(start = as.integer(df$start), end = as.integer(df$end)),
+          score    = df$score)
+}
+
+# full dmrs list
+dmrs <- list(
+  Zygote = read_dmr("../output/10.01-diff-methyl-DSS-CTmask/zygote_DMR.bed"),
+  Larvae = read_dmr("../output/10.01-diff-methyl-DSS-CTmask/larvae_DMR.bed"),
+  Egg    = read_dmr("../output/10.11-diff-methyl-DSS-parents-CTmask/female_DMR.bed"),
+  Sperm  = read_dmr("../output/10.11-diff-methyl-DSS-parents-CTmask/male_DMR.bed")
+)
+
+# summary
+knitr::kable(tibble(set          = names(dmrs),
+                    n_DMRs       = map_int(dmrs, length),
+                    median_bp    = map_dbl(dmrs, ~ median(width(.x))),
+                    pct_hyper    = map_dbl(dmrs, ~ mean(.x$score > 0) * 100)),
+             digits = 1)
+```
+
+# Load tested loci
+
+The tested-loci files are large (~18M CpGs each), so I’ll only keep CpGs that fall within a DMR from that dataset -- those are the only ones that can land in an overlap.
+
+```{r}
+# Read a 0-based tested-loci BED and return 1-based CpG positions as GRanges
+# only keep CpGs within `keep_gr`
+read_tested <- function(path, keep_gr) {
+  df <- read_tsv(path, col_names = c("chr", "start", "end"), col_types = "cii")
+  gr <- GRanges(seqnames = df$chr, ranges = IRanges(start = df$end, width = 1))
+  rm(df); gc()
+  subsetByOverlaps(gr, keep_gr)
+}
+
+# for offspring use pooled post-coverage-filter set of tested loci
+off_tested_path <- function(stage) {
+  pooled_tested <- "../output/10.01-diff-methyl-DSS-CTmask/tested_loci.bed.gz"
+}
+
+off_dmrs_all <- c(dmrs$Zygote, dmrs$Larvae)
+par_dmrs_all <- c(dmrs$Egg, dmrs$Sperm)
+
+tested <- list(
+  Zygote = read_tested(off_tested_path("Zygote"), off_dmrs_all),
+  Larvae = read_tested(off_tested_path("Larvae"), off_dmrs_all),
+  Egg    = read_tested("../output/10.11-diff-methyl-DSS-parents-CTmask/female_tested_loci.bed.gz", par_dmrs_all),
+  Sperm  = read_tested("../output/10.11-diff-methyl-DSS-parents-CTmask/male_tested_loci.bed.gz",   par_dmrs_all)
+)
+
+map_int(tested, length)
+```
+
+# Identify overlapping DMRs
+
+For each parent x offspring pair of DMR sets, want to:
+
+- Find all pairs of DMRs that overlap (any amount of overlap permissible here)
+- Get the overlapping portion of each pair (pintersect)
+- Count # of CpGs in that portion that were tested in both datasets
+- Keep only pairs where the overlap is >= 50bp and it contains >= 3 CpGs
+- Check for directional concordance (sign of the offspring score == sign of the parent score)
+```{r}
+overlap_dmrs <- function(off_name, par_name) {
+  off <- dmrs[[off_name]]
+  par <- dmrs[[par_name]]
+  if (length(off) == 0 || length(par) == 0) return(tibble())
+
+  hits <- findOverlaps(off, par)
+  if (length(hits) == 0) return(tibble())
+
+  off_hit <- off[queryHits(hits)]
+  par_hit <- par[subjectHits(hits)]
+  ovl     <- pintersect(off_hit, par_hit)
+
+  # CpGs tested in both datasets
+  shared_cpg <- subsetByOverlaps(tested[[off_name]], tested[[par_name]])
+
+  tibble(offspring       = off_name,
+         parent          = par_name,
+         chr             = as.character(seqnames(ovl)),
+         overlap_start   = start(ovl),
+         overlap_end     = end(ovl),
+         overlap_bp      = width(ovl),
+         overlap_nCG     = countOverlaps(ovl, shared_cpg),
+         off_DMR_start   = start(off_hit),
+         off_DMR_end     = end(off_hit),
+         off_score       = off_hit$score,
+         par_DMR_start   = start(par_hit),
+         par_DMR_end     = end(par_hit),
+         par_score       = par_hit$score) %>%
+    mutate(passes_criteria = overlap_bp >= min_len & overlap_nCG >= min_cg,
+           concordant      = sign(off_score) == sign(par_score))
+}
+comparisons <- tribble(
+  ~off_name,                ~par_name,
+  "Zygote",                 "Egg",
+  "Zygote",                 "Sperm",
+  "Larvae",                 "Egg",
+  "Larvae",                 "Sperm"
+)
+
+all_ovl <- pmap_dfr(comparisons, overlap_dmrs)
+
+# Overlapping DMRs that meet the >=50bp, >=3 CpG criteria
+dmr_ovl <- filter(all_ovl, passes_criteria)
+```
+
+# Summary
+
+Want to know:
+
+- how many DMRs overlap at all (>=1bp), and how many *still* overlap after applying the >=50bp/>=3 CpG criteria
+- For the set of overlaps that pass, what portion are directionally concordant
+```{r}
+ovl_summary <- comparisons %>%
+  mutate(n_off_DMRs = map_int(off_name, ~ length(dmrs[[.x]])),
+         n_par_DMRs = map_int(par_name, ~ length(dmrs[[.x]]))) %>%
+  left_join(all_ovl %>%
+              group_by(offspring, parent) %>%
+              summarise(n_any_overlap   = n(),
+                        n_pass          = sum(passes_criteria),
+                        n_pass_concord  = sum(passes_criteria & concordant),
+                        # distinct DMRs involved (one DMR can overlap >1 DMR in the other set)
+                        n_off_DMRs_pass = n_distinct(paste(chr, off_DMR_start)[passes_criteria]),
+                        n_par_DMRs_pass = n_distinct(paste(chr, par_DMR_start)[passes_criteria]),
+                        .groups = "drop"),
+            by = c("off_name" = "offspring", "par_name" = "parent")) %>%
+  mutate(across(starts_with("n_"), ~ replace_na(.x, 0L)),
+         pct_off_DMRs_shared = 100 * n_off_DMRs_pass / n_off_DMRs,
+         pct_concordant      = 100 * n_pass_concord / n_pass)
+
+knitr::kable(ovl_summary, digits = 1)
+```
+
+How many overlaps were dropped by each criterion?
+```{r}
+all_ovl %>%
+  mutate(reason = case_when(passes_criteria                    ~ "Passes",
+                            overlap_bp < min_len & overlap_nCG < min_cg ~ "< 50bp and < 3 CpGs",
+                            overlap_bp < min_len               ~ "< 50bp",
+                            TRUE                               ~ "< 3 CpGs")) %>%
+  count(offspring, parent, reason) %>%
+  pivot_wider(names_from = reason, values_from = n, values_fill = 0) %>%
+  knitr::kable()
+```
+
+# Plot
+
+```{r}
+ovl_summary %>%
+  mutate(comparison = paste(off_name, "x", par_name),
+         Discordant = n_pass - n_pass_concord) %>%
+  select(comparison, Concordant = n_pass_concord, Discordant) %>%
+  pivot_longer(c(Concordant, Discordant), names_to = "direction", values_to = "n") %>%
+  ggplot(aes(x = reorder(comparison, n), y = n, fill = direction)) +
+  geom_col() +
+  scale_fill_manual(values = c(Concordant = "steelblue", Discordant = "gray")) +
+  labs(x = NULL, y = "Overlapping DMR pairs (>= 50bp, >= 3 CpGs)", fill = NULL,
+       title = "Parent-offspring DMR overlap (CT-masked)") +
+  theme_bw() + theme(legend.position = "bottom")
+```
+
+Distribution of overlap sizes for the overlaps that pass:
+```{r}
+dmr_ovl %>%
+  mutate(comparison = paste(offspring, "x", parent)) %>%
+  ggplot(aes(x = overlap_bp, y = overlap_nCG)) +
+  geom_point(alpha = 0.3) +
+  scale_x_log10() + scale_y_log10() +
+  facet_wrap(~ comparison) +
+  labs(x = "Overlap length (bp)", y = "Tested CpGs in overlap") +
+  theme_bw()
+```
+
+# Save outputs
+
+Coordinates need to be converted back to 0-based BED starts
+```{r}
+dmr_ovl %>%
+  mutate(bed_start = overlap_start - 1L) %>%
+  group_by(offspring, parent) %>%
+  group_walk(~ write_tsv(
+    .x %>% select(chr, start = bed_start, end = overlap_end, overlap_bp, overlap_nCG,
+                  off_score, par_score, concordant,
+                  off_DMR_start, off_DMR_end, par_DMR_start, par_DMR_end),
+    file.path("../output/13-DMR-overlap-CTmask", paste0("shared_", tolower(.y$offspring), "_", tolower(.y$parent), "_DMR.bed")),
+    col_names = TRUE))
+
+write_tsv(ovl_summary, "../output/13-DMR-overlap-CTmask/DMR_overlap_summary.tsv")
+```
+
+
+NExt steps: Still need to test whether overlap exceeds what we’d expect by chance (e.g., by shuffling DMR positions within the set of tested loci and recounting overlaps).
